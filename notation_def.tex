@@ -1,0 +1,94 @@
+% This file determines notation
+% and defines various helper commands.
+% (loaded after all packages)
+
+% some common notation
+% \newcommand{\defeq}{\stackrel{\text{def}}{=}} % and my heart is broken as I
+% comment this out... :(
+\newcommand{\defeq}{=}
+
+% Notation specific to Align-BDD project
+\renewcommand{\vec}[1]{\mathbf{#1}} % just bold vectors, no arrows
+\newcommand{\sn}[0]{\textbf{Step  \arabic{ALG@line}.}}
+\newcommand{\swap}[0]{\texttt{swap}}
+\newcommand{\sift}[0]{\texttt{sift}}
+\newcommand{\Ninst}[0]{$10,048$}
+\newcommand{\PVAL}[0]{0.6}
+
+% some code needed for algorithms description (appendix) >>>
+\newcommand{\CL}{\texttt{current-layer}}
+\newcommand{\NL}{\texttt{next-layer}}
+\newcommand{\IFN}{\texttt{infeasible-node}}
+\newcommand{\add}[3]{\textbf{add node} to $D$: #1
+  $\overset{\textrm{#2}}\longrightarrow$ \textit{(new)} #3}
+\newcommand{\link}[3]{\textbf{add arc} to $D$: #1
+  $\overset{\textrm{#3}}\longrightarrow$ #2 }
+\newcommand{\state}{\texttt{state}}
+\newcommand{\crit}{\texttt{critical-nodes}}
+\newcommand{\nstate}{\texttt{next-state}}
+\newcommand{\cov}{\texttt{C}}
+\newcommand{\type}{\texttt{T}}
+\newcommand{\hi}[1]{\texttt{HI(#1)}}
+\newcommand{\lo}[1]{\texttt{LO(#1)}}
+
+\newcommand{\F}{\textbf{F}}
+\newcommand{\T}{\textbf{T}}
+\newcommand{\HI}{\texttt{HI}}
+\newcommand{\LO}{\texttt{LO}}
+\newcommand{\ROOT}{\texttt{r}}
+\newcommand{\N}{\mathcal{N}}
+\newcommand{\var}{\textrm{var}}
+\newcommand{\true}{\texttt{True}}
+\newcommand{\false}{\texttt{False}}
+\newcommand{\BN}{\mathbb{B}^N}
+\newcommand{\X}{\mathbb{X}^N}
+\newcommand{\orig}{\ref{probl:ap}$(A,B;T^*)$}
+\newcommand{\simpl}{\ref{probl:ap}$(S_A,S_B;T_\VS^*)$}
+\newcommand{\SN}{\mathbb{S}^N}
+\newcommand{\VS}{\textrm{VS}}
+\newcommand{\erem}{\hfill \Halmos}    % ends a remark or an example
+\newcommand{\vv}{\vec{v}}
+
+% \algdef{SE}[SUBALG]{Indent}{EndIndent}{}{\algorithmicend\ }%
+% \algtext*{Indent}
+% \algtext*{EndIndent}
+
+% One style for all TikZ pictures for working with overlays:
+% \tikzset{every picture/.style=remember picture}
+% % Define a TikZ node for math content:
+% \newcommand{\mathnode}[2]{%
+%   \mathord{\tikz[baseline=(#2.base), inner sep = 0pt]{\node (#2) {$#1$};}}}
+
+% Notation specific to DSPI algorithms notation
+\newcommand{\ahat}{\widehat{\alpha}}
+\newcommand{\bhat}{\widehat{\beta}}
+
+\newcommand{\rnode}{\texttt{root}}
+\newcommand{\argmin}{\textrm{argmin}}
+\newcommand{\argmax}{\textrm{argmax}}
+\newcommand{\und}{\textrm{ and }}
+\newcommand{\isnot}[1]{\textrm{ is not }\textit{#1}} %{\not\sim\textrm{ ``#1''}}
+\newcommand{\is}[1]{\sim\textrm{ ``#1''}}
+\newcommand{\mrk}[1]{\texttt{mark}(#1)}
+
+% # tree / algo specific notation
+\newcommand{\actions}[1]{\texttt{actions}(#1)}
+\newcommand{\children}[1]{\texttt{children}(#1)}
+\newcommand{\pos}[1]{\textrm{p}(#1)}
+\newcommand{\FS}[1]{\textrm{FS}(#1)}
+
+\makeatletter
+\def\LB{\@ifstar\@LB\@@LB}
+\def\@LB{\textit{LB}}
+\def\@@LB#1{\textit{LB}(#1)}
+
+\def\UB{\@ifstar\@UB\@@UB}
+\def\@UB{\textit{UB}}
+\def\@@UB#1{\textit{UB}(#1)}
+\makeatother
+
+\newcommand{\newnode}[1]{\textrm{\textbf{create node}(#1)}}
+
+% Horizontal algo phase section separation
+\newcommand{\panelsep}{\vspace{0.7em} {\color{lightgray}\hrule} \vspace{0.7em}}
+\newcommand{\psep}{\vspace{0.5em}}

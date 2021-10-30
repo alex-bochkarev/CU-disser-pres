@@ -1,0 +1,4 @@
+auto/
+export/*
+!export/bochkarev_pres.pdf
+img/ingredient.jpg

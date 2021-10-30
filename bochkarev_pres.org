@@ -1,0 +1,618 @@
+#+TITLE:  Selected Topics in Network Optimization:
+#+TITLE: Aligning BDDs for a Facility Location Problem
+#+TITLE: and a Search Tree Method for DSPI.
+#+SUBTITLE: Dissertation defense
+#+AUTHOR: Alexey Bochkarev
+#+EMAIL: abochka@g.clemson.edu
+#+DATE: 2021-11-02, 08-30, Zoom / Freeman Hall 123
+
+#+startup: beamer
+#+LATEX_CLASS: beamer
+#+LATEX_CLASS_OPTIONS: [10pt, xcolor=svgnames]
+#+BEAMER_THEME: Darmstadt
+#+LATEX_HEADER: \usepackage{tikz}
+#+LATEX_HEADER: \usetikzlibrary{calc}
+#+LATEX_HEADER: \usetikzlibrary{arrows} % For nice arrow tips (Align-BDD)
+#+LATEX_HEADER: \setbeamertemplate{blocks}[rounded][shadow=false]
+#+LATEX_HEADER: \usepackage{bibentry}
+#+LATEX_HEADER: \nobibliography*
+#+LATEX_HEADER: \input{notation_def.tex}
+#+OPTIONS: H:3
+#+COLUMNS: %40ITEM %10BEAMER_env(Env) %9BEAMER_envargs(Env Args) %4BEAMER_col(Col) %10BEAMER_extra(Extra)
+#+CATEGORY: Draft
+
+* TODO Aligning BDDs
+** On BDD representations
+** BDD alignment (``original'') problem
+** The simplified problem
+** Numerical experiments
+
+* TODO A BDD-based approach to a Facility Location Problem
+** Problem description
+** BDD representation
+** Solving the CPP
+** Numerical experiments
+
+* Monte Carlo Tree Search for DSPI
+** Problem formulation
+*** A game of ``interdiction'': intro                               :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Pic: attacker and user
+    :PROPERTIES:
+    :BEAMER_col: 0.4
+    :BEAMER_opt: [t]
+    :END:
+
+    #+ATTR_LATEX: width=\textwidth
+    [[./img/SPI.png]]
+
+**** Description
+    :PROPERTIES:
+    :BEAMER_col: 0.6
+    :BEAMER_opt: [t]
+    :END:
+    - *Network:* a directed graph with two special nodes (source \textcircled{s} and terminal \textcircled{t}), and a pair of "costs" associated to each edge.
+    - *User:* seeks to run through the graph, \textcircled{s} to \textcircled{t}, at min cost.
+    - *Attacker:* maximizes the User's cost by "attacking" the arcs, having a limited "budget".
+
+   We consider a *dynamic* version of the game, following cite:sefair2016. (NP-hard)
+
+*** A game of ``interdiction'': formulation                         :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+    The Interdictor's optimal objective $z^*$ can be expressed as:
+   #+begin_export latex
+ \begin{equation*}
+ z^*(S,i) = \max_{S^\prime \subseteq \FS{i}\setminus S~:~|S\cup S^\prime|\leq b} \Big\{\min_{j\in\FS{i}} \{z^*(S\cup S^\prime, j) + \widetilde{c}_{ij}(S\cup S^\prime)\}\Big\},
+ \end{equation*}
+   #+end_export
+   where:
+   - $S$: interdiction set,
+   - $i$: current Evader's node, $\FS{i}$ -- forward star of node $i$,
+   - $\widetilde{c}_{ij}$: arc traversal costs (given the interdiction),
+   - $b$: Interdictor's budget.
+   \pause
+
+**** Existing algorithms (by Sefair & Smith)                        :B_block:
+     :PROPERTIES:
+     :BEAMER_env: block
+     :END:
+     - polynomial DP algorithm for a DAG
+     - exact DP algorithm, exp time for general case.
+
+** What do we propose?
+*** Monte Carlo Tree Search
+    - Maintain the game tree,
+    - Try not to create all the nodes,
+    - Prune the definitely suboptimal ones,
+    - Drive the tree growth by a computationally cheap objective estimate (e.g.,
+      based on simulated games).
+
+** MCTS framework
+*** The ``game tree''
+ Create a ``game tree'', where *nodes* contain the following information.
+ - Current *status*
+   - $\pos{j}\in \mathcal{N}$: where is the Evader,
+   - $S_j\subseteq \mathcal{A}$: what is interdicted,
+   - $\tau(j)$: who's turn is it (Interdictor/Evader)\pause
+ - Possible further *development*
+   - $\children{j}$: child game tree nodes,
+   - $\actions{j}$: available actions.\pause
+ - *Costs* info, to drive the search and prune the tree
+   - $\widehat{Q}_j$: cost-to-go (starting from this node),
+   - $\LB{j},~\UB{j}$: bounds on the true cost-to-go,
+   - $N_j\in\mathbb{N}$: how many times the node was visited\pause
+
+  So, we iterate through *episodes*, each one implying a ``full cycle'' of the game tree update in four *phases*.
+    
+*** Summary figure setup (technical)                                 :ignore:
+   #+begin_export latex
+ \tikzstyle{sel} = [minimum size=2mm, NavyBlue]
+ \tikzstyle{stdnode} = [draw, fill, circle, lightgray, minimum size=2mm]
+ \tikzstyle{empty} = [draw=none, fill=none]
+ \tikzstyle{rootnode} = [fill=none]
+ \tikzstyle{edge from parent} = [draw=lightgray]
+   #+end_export
+
+*** Phase 1. Selection                                        
+  #+begin_export latex
+\begin{minipage}{0.3\textwidth}
+% selection
+\begin{tikzpicture}[%level distance=5mm,
+level 1/.style={level distance=10mm,sibling distance=12mm},
+level 2/.style={level distance=10mm,sibling distance=7mm},
+level 3/.style={level distance=10mm,sibling distance=7mm},
+font=\scriptsize,inner sep=2pt,every node/.style=stdnode]
+
+\node[NavyBlue, sel] {} % root
+child {node {}
+        child {node {}} 
+        child {node {} 
+            child {node{}} 
+            child {node{}}
+        }
+    edge from parent }
+child {node {}}
+child   {[NavyBlue] node[sel] {}
+            child {[black] node {}}
+            child {node[sel] {}
+                   edge from parent[NavyBlue]
+            }
+        edge from parent[NavyBlue]
+        };
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}{0.5\textwidth}
+\textbf{What's happening:}
+\begin{itemize}
+  \item Start at the root node,
+  \item Use \textit{tree policy} to choose the next node recursively...
+  \item ... pruning nodes as we go, when possible ...
+  \item ... until we reach a leaf.
+\end{itemize}
+\psep{}
+
+\textbf{What's updated:}
+\begin{itemize}
+  \item Nothing in the tree.
+  \item Along the way: bounds for pruning (more momentarily!) + path costs.
+\end{itemize}
+\end{minipage}
+  #+end_export
+*** Phase 2. Expansion                                        
+  #+begin_export latex
+% expansion
+\begin{minipage}{0.3\textwidth}
+\begin{tikzpicture}[%level distance=5mm,
+level 1/.style={level distance=10mm,sibling distance=12mm},
+level 2/.style={level distance=10mm,sibling distance=7mm},
+level 3/.style={level distance=10mm,sibling distance=7mm},
+font=\scriptsize,inner sep=2pt,every node/.style=stdnode]
+
+\node[rootnode] {} % root
+child {node {}
+        child {node {}} 
+        child {node {} 
+            child {node{}} 
+            child {node{}}
+        }
+    edge from parent }
+child {node {}}
+child   {node {}
+            child {node {}}
+            child {node {}
+                child {[NavyBlue] node[sel]{} edge from parent[NavyBlue]}
+                child {[NavyBlue] node[sel]{} edge from parent[NavyBlue]}
+                child {[NavyBlue] node[sel]{} edge from parent[NavyBlue]}
+            }
+        };
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}{0.5\textwidth}
+\textbf{What's happening:}
+\begin{itemize}
+  \item Create child nodes for possible actions.
+\end{itemize}
+\psep{}
+
+\textbf{What's updated:}
+\begin{itemize}
+  \item New nodes are created,
+  \item UBs and LBs are calculated
+\end{itemize}\psep{}
+
+\textbf{Note:} Some inconsistencies can be introduced here, between child and parent nodes.
+\end{minipage}
+  #+end_export
+*** Phase 3. Roll-outs                                        
+  #+begin_export latex
+% roll-outs
+\begin{minipage}{0.3\textwidth}
+\begin{tikzpicture}[%level distance=5mm,
+level 1/.style={level distance=10mm,sibling distance=12mm},
+level 2/.style={level distance=10mm,sibling distance=7mm},
+level 3/.style={level distance=10mm,sibling distance=7mm},
+font=\scriptsize,inner sep=2pt,every node/.style=stdnode]
+
+\node[rootnode] {} % root
+child {node {}
+        child {node {}} 
+        child {node {} 
+            child {node{}} 
+            child {node{}}
+        }
+    edge from parent }
+child {node {}}
+child {node {}
+       child {node {}}
+       child {node {}
+              child {node[sel] (a1) {}
+                     child {node[empty, NavyBlue] (b1) {...} edge from parent[draw=none]
+                       child{node[sel, fill=none] (c1) {}
+                             edge from parent[draw=none]}}}
+                child {node[sel] (a2) {}
+                    child {node[empty, NavyBlue] (b2) {...} edge from parent[draw=none]
+                       child{node[sel, fill=none] (c2) {}
+                             edge from parent[draw=none]}}}
+                child {node[sel] (a3) {}
+                    child {node[empty, NavyBlue] (b3) {...} edge from parent[draw=none]
+                       child{node[sel, fill=none] (c3) {}
+                             edge from parent[draw=none]}}}}
+                             };
+\draw[bend left, NavyBlue, shorten <=2pt] (a1) to (b1);
+\draw[->, bend right, NavyBlue, shorten >= 2pt] (b1) to (c1);
+\draw[bend right, NavyBlue, shorten <=2pt] (a2) to (b2);
+\draw[->, bend left, NavyBlue, shorten >=2pt] (b2) to (c2);
+\draw[bend left, NavyBlue, shorten <=2pt] (a3) to (b3);
+\draw[->, bend right, NavyBlue, shorten >=2pt] (b3) to (c3);
+\draw[dashed, NavyBlue, rounded corners=7] ($(c1)+(-.3,.3)$)rectangle($(c3)+(.3,-.3)$);
+\node[draw=none, fill=none, yshift=-4.5mm, NavyBlue] at ($(c1)!.5!(c3)$){Terminal nodes}; 
+\end{tikzpicture}%
+\vspace{-2.5em}
+\end{minipage}\hfill
+\begin{minipage}{0.5\textwidth}
+\textbf{What's happening:}
+\begin{itemize}
+  \item Run a random simulated game from each node,
+  \item Calculate cost-to-go estimate $\widehat{Q}_j$ as the simulated game cost.
+\end{itemize} \psep{}
+
+\textbf{What's updated}
+\begin{itemize}
+  \item Cost-to-go for each new node.
+\end{itemize}\psep{}
+
+\textbf{Note:} We do not record the intermediate game states occured during roll-outs!
+\end{minipage}
+  #+end_export
+
+*** Phase 4. Backpropagation                                  
+  #+begin_export latex
+% backpropagation
+\begin{minipage}{0.3\textwidth}
+\begin{tikzpicture}[%level distance=5mm,
+level 1/.style={level distance=10mm,sibling distance=12mm},
+level 2/.style={level distance=10mm,sibling distance=7mm},
+level 3/.style={level distance=10mm,sibling distance=7mm},
+font=\scriptsize,inner sep=2pt,every node/.style=stdnode]
+
+\node[sel] (d) {} % root
+child {node {}
+        child {node {}} 
+        child {node {} 
+            child {node{}} 
+            child {node{}}
+        }
+    edge from parent }
+child {node {}}
+child {node[sel] (c) {}
+            child {node {}}
+            child {node[sel] (b) {}
+                child {node{}}
+                child {node{}}
+                child {node[sel] (a) {}}
+            }
+        };
+
+\draw[->, NavyBlue, bend right, shorten >=2pt, shorten <=2pt] (a) to (b.east);
+\draw[->, NavyBlue, bend right, shorten >=2pt, shorten <=2pt] (b.north east) to (c.east);
+\draw[->, NavyBlue, bend right, shorten >=2pt, shorten <=2pt] (c.north east) to (d.east);
+\end{tikzpicture}
+\end{minipage}\hfill
+\begin{minipage}{0.5\textwidth}
+\textbf{What's happening:}
+\begin{itemize}
+  \item Start at the selected node,
+  \item Recursively update (``propagate'') node information for parents ...
+  \item ... until we reach the root.
+\end{itemize} \psep{}
+
+\textbf{What's updated:}
+Information in each parent node, using the child nodes:
+\begin{itemize}
+  \item UBs and LBs
+  \item Cost-to-go estimate: the best value (given the turn).
+\end{itemize}
+\end{minipage}
+  #+end_export
+
+*** The Algorithm                                                   :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+The algorithm can perform actions for both players. Each turn involves two
+steps:\vspace{2ex}
+
+**** THINK ...                                               :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.4
+     :BEAMER_opt: t
+     :END:
+   \textbf{Step 1.} THINK.\vspace{1ex}
+
+   We iteratively improve the tree (while we have budget):\vspace{1ex}
+
+    \textbf{FOR} $k=1,\ldots, K$ \textbf{DO}
+    - Selection
+    - Expansion
+    - Roll-outs
+    - Backpropagation
+    \textbf{END.}
+
+**** ACT                                                     :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.4
+     :BEAMER_opt: t
+     :END:
+     \textbf{Step 2.} ACT.\vspace{1ex}
+
+     ... then pick an action corresponding to the ``most
+     attractive'' child node of the root.
+
+*** There are several secret ingredients
+   #+begin_export latex
+   \begin{figure}
+   \includegraphics[width=\textwidth]{img/ingredient.jpg}
+   \end{figure}
+   #+end_export 
+   
+*** SI-1. How to select?
+    - \textbf{with probability $\varepsilon$}: choose at random;
+    - \textbf{otherwise}, a child node with the *best score*:
+    #+begin_export latex
+  \begin{equation*}
+  R_j \defeq \underbrace{\sigma_i (\widetilde{C}_{ij} + \widehat{Q}_j)}_{\textrm{best cost-to-go}} ~~+ ~~\underbrace{C_p\sqrt{\log(N_i) / N_j}}_{\textrm{encourage exploration}}, \quad \textrm{ for all } j\in\children{i}
+  \end{equation*}
+    #+end_export
+
+    ``Best'' here depends on the turn (the Evader will choose the smallest cost estimate, the Interdictor --- the largest).
+*** SI-2. How to prune?
+    We leverage the classic idea of *alpha--beta pruning*:
+    \vspace{2ex}
+**** Pic                                                     :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.4
+     :END:
+     #+begin_export latex
+ \begin{tikzpicture}[%level distance=5mm,
+ level 1/.style={level distance=10mm,sibling distance=12mm},
+ level 2/.style={level distance=10mm,sibling distance=7mm},
+ level 3/.style={level distance=10mm,sibling distance=7mm},
+ font=\scriptsize,inner sep=2pt,
+ edge from parent/.style={draw=black},
+ every node/.style={draw, circle}]
+
+ \node[label=above:{root}]{I} % root
+ child {node[label=left:{$(A)$}] {E}
+         child {node[label=below:{$j^{\prime\prime}$}] {I}} 
+         child {node[sel, label=below:{$j^\prime$}] {I}} 
+         child {node {I}} 
+     edge from parent node[draw=none, left] {pass}}
+ child {node {I}}
+ child   {node[sel, label=right:{$(B)$}] {I}
+             child {node {I}
+                 child {node[draw=none] {...}}
+                 child {node[draw=none] {...}}}
+             child {node {I}
+                 child {node[draw=none] {...}}}
+         edge from parent};
+ \end{tikzpicture}
+     #+end_export
+**** Description                                             :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.6
+     :END:
+ Maintain two running numbers (bounds):
+ - $\alpha$: the worst (minimum) alternative cost achievable by the Interdictor,
+ - $\beta$: the worst (maximum) alternative cost achievable by the Evader.
+\vspace{2ex}
+ *Pruning condition:* $\beta \leq \ahat_j$ or $\bhat_j \leq \alpha$, where
+- $\ahat_j =\pi_n+\LB{j}$  (Interdictor's turns), and
+- $\bhat_j = \pi_n+\widetilde{C}_{nj} + \UB{j}$ (Evader's turns)
+*** SI-3. How to back-propagate?
+  Assuming the Evader's turn, and $i$ being the current game tree node:
+  - Update the bounds:
+ #+begin_export latex
+ \begin{align*}
+   \UB{i} &\gets \min_{j\in\children{i}} \Big\{ \widetilde{C}_{ij}(S_i) + \UB{j} \Big\},\\
+   \LB{i} &\gets \min_{j\in\children{i}} \Big\{ \widetilde{C}_{ij}(S_i) + \LB{j} \Big\}.
+ \end{align*}
+ #+end_export
+ 
+ - Update the cost-to-go estimate:
+ #+begin_export latex
+ \begin{equation*}
+ \widehat{Q}_i \gets \min_{j\in\children{i}} \Big\{ \widetilde{C}_{ij}(S_i) + \widehat{Q}_j\Big\}.
+ \end{equation*}
+ #+end_export
+** Numerical experiments
+*** Numerical experiments: strategy
+   - How does it perform on pre-defined instances? (relative to the known optimum, and to the bounds)
+   - How does it perform on randomly generated instances with different budgets?
+   - What's the dynamics of the tree construction? How does the algorithm work?
+   - What's the point of ``playing out'', i.e., changing root nodes?
+
+*** Pre-defined instances
+    #+begin_export latex
+    \begin{figure}
+    \includegraphics[width=\textwidth]{img/fig_known.png}
+    \end{figure}
+    #+end_export
+*** Random instances (snapshot)
+    #+begin_export latex
+ \begin{figure}
+ \includegraphics[width=\textwidth]{img/fig_bounds.png}\vspace{0.5ex}
+ \includegraphics[width=\textwidth]{img/fig_runtimes.png}
+ \end{figure}
+    #+end_export
+*** Convergence profiles                                            :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+    #+begin_export latex
+    \begin{minipage}{0.45\textwidth}
+    {\scriptsize \centering $\varepsilon=0.05$\vspace{1ex} \\}
+    \includegraphics[width=0.4\paperwidth]{img/conv_profile_2eps_0.05.png}
+    \end{minipage}\hfill
+    \begin{minipage}{0.45\textwidth}
+    {\scriptsize \centering $\varepsilon=0.5$\vspace{1ex} \\}
+    \includegraphics[width=0.4\paperwidth]{img/conv_profile_2eps_0.5.png}%
+    \end{minipage}
+    #+end_export
+*** A remark: that's not just different runs                        :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Pic                                                     :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.6
+     :END:
+    #+begin_export latex
+    \includegraphics[height=0.8\textheight]{img/treesizes.png}
+    #+end_export
+**** Notes                                                   :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.4
+     :END:
+     For each value of $\varepsilon$ (0.05, 0.5, and 1) we performed three runs, to confirm these are indeed different ``modes'' of the algorithm.
+
+*** Play-out vs. first-move strategy
+    #+begin_export latex
+    \includegraphics[width=\textwidth]{img/courage.eps}
+    #+end_export
+** On correctness
+*** Why does it work? (A sketch on ``correctness'')
+**** Proposition                                                  :B_theorem:
+     :PROPERTIES:
+     :BEAMER_env: theorem
+     :END:
+  $$\lim_{k\rightarrow \infty} \mathbb{P}\{Q^k_{\rnode{}} = \textrm{true optimum}\}=1$$
+**** Proof sketch                                           :B_ignoreheading:
+     :PROPERTIES:
+     :BEAMER_env: ignoreheading
+     :END:
+    A sketch of the proof:
+
+    - The game tree has finite number of nodes (there is a bound independent from $K$).
+    - We never cut off all the optima $\Rightarrow$ the tree contains at least one.
+    - What is left is a finite-size minimax tree, containing an optimum.
+    - As $K\rightarrow\infty$, probability to select every node for expansion converges to 1.
+
+*** Why in the world the tree is finite?
+**** Initial graph G                                         :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.15
+     :END:
+     Network:
+     #+begin_export latex
+    \centering
+    \begin{tikzpicture}[%level distance=5mm,
+      level 1/.style={level distance=10mm,sibling distance=12mm},
+      level 2/.style={level distance=10mm,sibling distance=7mm},
+      level 3/.style={level distance=10mm,sibling distance=7mm},
+      font=\scriptsize,inner sep=2pt,
+      every node/.style={draw=black, circle}]
+      \node[draw=none] {...}
+      child {node (a) {1}
+        child {node (b) {2}
+          child {node (c) {3}
+            child {node[draw=none] {...}}
+            child {node[draw=none] {...}}
+            edge from parent node[left, draw=none] {$c_{23}$}}
+          edge from parent node[left, draw=none] {$c_{12}$}}};
+      \draw[->, bend right, shorten >=2pt, shorten <=2pt] (b.east) to (a.east);
+      \node[draw=none, fill=none, xshift=7mm] at ($(a)!.5!(b)$){$c_{21}$}; 
+    \end{tikzpicture}
+ #+end_export
+**** Tree-1                                                  :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.30
+     :END:
+     After the *first* expansion:
+     \vspace{2ex}
+
+ #+begin_export latex
+    \centering
+    \begin{tikzpicture}[%level distance=5mm,
+      level 1/.style={level distance=10mm,sibling distance=12mm},
+      level 2/.style={level distance=10mm,sibling distance=7mm},
+      level 3/.style={level distance=10mm,sibling distance=15mm},
+      font=\scriptsize,inner sep=5pt,
+      every node/.style={draw=black}]
+      \node[draw=none] {...}
+      child {node {$p=1$}
+        child {node (A) {$p=2$}
+          child {node (B) {$p=1$}}
+          child {node (C) {$p=3$}}}};
+      \node[draw=none, xshift=-3mm] at (A.west) {$(A)$};
+      \node[draw=none, xshift=-3mm] at (B.west) {$(B)$};
+      \node[draw=none, xshift=3mm] at (C.east) {$(C)$};
+    \end{tikzpicture}
+#+end_export
+\pause
+**** Tree-2                                                  :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     After the *second* expansion:
+     \vspace{2ex}
+
+#+begin_export latex
+   \centering
+   \begin{tikzpicture}[%level distance=5mm,
+     level/.style={level distance=10mm,sibling distance=20mm},
+     level 3/.style={sibling distance=30mm},
+     font=\scriptsize,inner sep=5pt,
+     every node/.style={draw=black}]
+     \node[draw=none] {...}
+     child {node {$p=1$}
+       child {node (nA) {$p=2$}
+         child {node[blue] (tn1) {$p=1$}
+           child {node[blue] {$p=2$}
+             child {node[blue] {$p=1$}
+               child {node[draw=none] {...}}
+               edge from parent[blue]}
+             child {node[blue] (D) {$p=3$}
+               child {node[draw=none] {...}}
+               child {node[draw=none] {...}}
+               edge from parent[blue]}
+               edge from parent[blue]}
+               edge from parent[blue]}
+         child {node (nexit) {$p=3$}
+           child {node[draw=none] {...}}
+           child {node[draw=none] {...}}}}};
+     \node[draw=none, xshift=3.5mm] at (nexit.east) {$(C)$};
+     \node[draw=none, xshift=3.5mm] at (D.east) {$(D)$};
+     \node[draw=none, xshift=-3mm] at (nA.west) {$(A)$};
+     \node[draw=none, xshift=-3.5mm] at (tn1.west) {$(B)$};
+   \end{tikzpicture}
+    #+end_export
+* TODO Conclusion
+** Summary
+** Future research
+
+* Technical :ignore:
+*** Mentioned sources                                               :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+    \scriptsize
+   bibliographystyle:unsrtnat
+   [[bibliography:/home/bochkarev/Dropbox/bibliography/references.bib]]
+
+* Org  :noexport:
+** TODO Formatting brush-up
+** TODO Dry run
+

@@ -4,7 +4,7 @@
 #+SUBTITLE: Dissertation defense
 #+AUTHOR: Alexey Bochkarev
 #+EMAIL: abochka@g.clemson.edu
-#+DATE: 2021-11-02, 08-30, Zoom / Freeman Hall 123
+#+DATE: 2021-11-02 Tue, 08-30, Zoom / Freeman Hall 129
 
 #+startup: beamer
 #+LATEX_CLASS: beamer
@@ -12,28 +12,413 @@
 #+BEAMER_THEME: Darmstadt
 #+LATEX_HEADER: \usepackage{tikz}
 #+LATEX_HEADER: \usetikzlibrary{calc}
+#+LATEX_HEADER: \usetikzlibrary{tikzmark}
+#+LATEX_HEADER: \usepackage[beamer]{hf-tikz}
 #+LATEX_HEADER: \usetikzlibrary{arrows} % For nice arrow tips (Align-BDD)
 #+LATEX_HEADER: \setbeamertemplate{blocks}[rounded][shadow=false]
 #+LATEX_HEADER: \usepackage{bibentry}
 #+LATEX_HEADER: \nobibliography*
 #+LATEX_HEADER: \input{notation_def.tex}
-#+OPTIONS: H:3
+#+LATEX_HEADER: \beamertemplatenavigationsymbolsempty
+#+OPTIONS: H:3  tags:not-in-toc toc:nil
 #+COLUMNS: %40ITEM %10BEAMER_env(Env) %9BEAMER_envargs(Env Args) %4BEAMER_col(Col) %10BEAMER_extra(Extra)
 #+CATEGORY: Draft
 
-* TODO Aligning BDDs
-** On BDD representations
-** BDD alignment (``original'') problem
-** The simplified problem
-** Numerical experiments
 
-* TODO A BDD-based approach to a Facility Location Problem
-** Problem description
-** BDD representation
-** Solving the CPP
+ #+begin_export latex
+ {%<--- Start local changes
+ \setbeamertemplate{navigation symbols}{}
+ \usebackgroundtemplate{\includegraphics[width=\paperwidth]{./img/coffee.JPG}}
+ \begin{frame}[plain,b]
+ \centering
+ \LARGE Thanks for joining in the morning!\vspace{4ex}
+ \end{frame}
+ }%<---- Finish local changes
+ #+end_export
+
+*** Presentation outline
+    :PROPERTIES:
+    :UNNUMBERED: t
+    :END:
+ #+LATEX: \tableofcontents
+
+* TODO Aligning BDDs
+  :LOGBOOK:
+  CLOCK: [2021-10-30 Sat 21:11]--[2021-10-30 Sat 23:10] =>  1:59
+  CLOCK: [2021-10-30 Sat 20:45]--[2021-10-30 Sat 20:45] =>  0:00
+  :END:
+** On BDD representations
+*** What is an (O)BDD?                                              :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Left                                                    :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.40
+     :BEAMER_opt: t
+     :END:
+     \textbf{In a nutshell:}
+     - A (maybe weighted) layered (D)AG
+     - Two outgoing arcs from each node
+     - One root, two terminals\vspace{2ex}
+
+       \includegraphics[width=0.6\textwidth]{./img/simple-BDD.png}
+**** Right                                                   :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :BEAMER_opt: t
+     :END:
+     \textbf{Applications:}
+     - Can encode a Boolean function ...
+     - ... or a combinatorial opt problem.
+       
+     \textbf{How it works:}
+     - A layer corresponds to a ``decision'' (binary variable),
+     - *one-arc* (or yes-arc) -- $x_i=1$,
+     - *zero-arc* (or no-arc) -- $x_i=0$.
+     - A *path* from root to terminal corresponds to an assignment of all
+       variables.
+*** Order of variables matters: a MIS example                       :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Original graph                                          :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.2
+     :END:
+     \centering
+     \textbf{Original graph:}\vspace{2ex}
+     \includegraphics[height=0.6\textheight]{./img/BDDsampleGraph.png}
+**** 14-nodes                                                :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.35
+     :END:
+     \centering
+     \textbf{14 nodes:}\vspace{2ex}
+     \includegraphics[height=0.7\textheight]{./img/BDDsampleRep1.png}
+**** 17-nodes                                                :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.55
+     :END:
+     \centering
+     \textbf{17 nodes:}\vspace{2ex}
+     \includegraphics[height=0.7\textheight]{./img/BDDsampleRep2.png}
+*** The *same* order of variables also matters                      :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+    - Many problems can be reformulated as a set of (connected) instances
+      over a collection of BDDs.
+    - If we have the same order of variables: cite:lozano2020 proposed an algorithm
+      how to tackle such instances.
+    - So, finding a good shared order of variables might be desirable.
+*** A motivating example: t-UFLP                                    :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Fig                                                     :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.2
+     :END:
+     \includegraphics[height=0.8\textheight]{./img/tUFLP.png}
+**** Description                                             :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.8
+     :END:
+     \textbf{Assume:}
+     - A graph; can *locate* a facility at any point,
+     - A located facility *covers* all neighboring points.
+
+     \textbf{Objective:} cover all points at min cost.
+
+     \textbf{Constraints:}
+     - Each point implies a facility *``type''*,
+     - There is a limit on number of facilities by type.
+*** How to merge two diagrams?                                      :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+    \centering
+    \includegraphics[width=\textwidth]{./img/merging.png}
+
+    Source: cite:lozano2020
+*** A motivating example: t-UFLP                                    :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Fig                                                     :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.2
+     :END:
+     \includegraphics[height=0.8\textheight]{./img/tUFLP.png}
+**** Description                                             :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.8
+     :END:
+     \textbf{Plan of attack:}
+     - Formulate the problem with two BDDs,
+     - @@latex:\tikzmarkin<2->{this}Enforce the shared order of variables\tikzmarkend{this}, \onslide<2->{\alert{$\leftarrow$ this part}}@@
+     - Merge (``intersect'') the two diagrams into one*
+     - Solve a shortest-path in the intersection DD.
+*** In this section:
+    - BDD alignment problem,
+    - A simplified model / heuristic,
+    - Numerical experiments on aligning BDDs.
+** BDD alignment (``original'') problem
+*** BDD alignment problem
+Let us denote $T^*[D,\vec{v}]$ -- a ``transformed'' version of BDD $D$ to variable order $\vec{v}=(v_1,\ldots,v_N)$. Then:
+**** BDD Alignment Problem / ``original'' problem                   :B_block:
+     :PROPERTIES:
+     :BEAMER_env: block
+     :END:
+     #+begin_export latex
+\begin{align*}
+     s^* = \min_{\vec{v}} \Big\{ |T^*[A, \vec{v}]| + |T^*[B, \vec{v}]| \Big\},
+\end{align*}
+     #+end_export
+**** Notes                                                  :B_ignoreheading:
+     :PROPERTIES:
+     :BEAMER_env: ignoreheading
+     :END:
+     where $|D|$ is the number of nodes in diagram $D$. The problem is NP-hard (because the min single BDD is NP-hard).
+*** Research context
+   - Vast literature on minimizing single BDD.
+   - One of the central ideas: ``Dynamic variable reordering'' / *Sifting* algorithm (we will use it as a baseline).
+   - Limited consideration of the multi-BDD version, and all working with BDDs (obviously).
+**** The purpose of this work                                       :B_block:
+     :PROPERTIES:
+     :BEAMER_env: block
+     :END:
+     Try to avoid manipulations with BDD as much as possible, by introducing a
+     ``simpler'' auxiliary problem.
+** The simplified problem
+*** How the BDDs are transformed?
+*** The simplified problem
+*** Plan of attack with the simplified problem
+*** How to solve it now? Key properties
+*** Branch...
+*** ... and bound.
 ** Numerical experiments
+*** Numerical experiments: strategy
+    - First: consider the simplified problem in detail.
+    - Then: solve the original problem, benchmark vs the baseline and consider scaling.
+    - Analyze the solutions: original vs. simplified, problem structure.
+
+*** Simplified problem: optima
+
+**** Left                                                    :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     \centering
+     \includegraphics[width=\textwidth]{./img/no_opts.eps}
+**** Right                                                   :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     \centering
+     \includegraphics[width=\textwidth]{./img/opts_diam.eps}
+*** Simplified problem: heuristics
+     \centering
+     \includegraphics[width=\textwidth]{./img/simpl_heuristics.eps}
+*** Objectives relative to the ``greedy sifts''
+     \centering
+     \includegraphics[width=\textwidth]{./img/orig_obj_histograms.eps}
+*** Scaling with the problem size
+     \centering
+     \includegraphics[width=\textwidth]{./img/orig_runtimes.eps}
+
+*** Simplified vs. Original problem solutions
+     \centering
+     \includegraphics[width=\textwidth]{./img/heuristic_simscore.eps}
+*** Effects of the problem structure
+     \centering
+     \includegraphics[width=\textwidth]{./img/heuristic_simscore_vs_AB_simscore.eps}
+* A BDD-based approach to a Facility Location Problem
+  :PROPERTIES:
+  :ALT_TITLE: BDDs for t-UFLP
+  :END:
+  :LOGBOOK:
+  CLOCK: [2021-10-30 Sat 16:39]--[2021-10-30 Sat 20:05] =>  3:26
+  CLOCK: [2021-10-30 Sat 16:01]--[2021-10-30 Sat 16:24] =>  0:23
+  CLOCK: [2021-10-30 Sat 14:17]--[2021-10-30 Sat 14:37] =>  0:20
+  :END:
+** Section outline
+   :PROPERTIES:
+   :UNNUMBERED: t
+   :END:
+#+LATEX: \tableofcontents[currentsection]
+** Problem description
+*** A variant of the Facility Location Problem                      :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Descr                                                   :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     #+begin_export latex
+\includegraphics[width=\textwidth]{img/cover-graph.eps}
+     #+end_export
+
+**** Eqns                                                    :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     - *Locate* facilities in a cheapest way, ...
+     - ... to *cover* all points, ...
+     - ... respecting the *budget* constraints, by facility ``type''.
+** BDD representation
+*** Problem formulation
+**** Eqn                                                              :BMCOL:
+     :PROPERTIES:
+     :BEAMER_col: 0.7
+     :END:
+     #+begin_export latex
+\begin{flalign*}
+  \min & \sum_{i=1}^M f_i x_i&&\\
+    \textrm{s.t. } & \sum_{j\in S_i}x_j  \geq 1 & i=1,\ldots,M, &\onslide<2->{\alert{\rightarrow  \textrm{ ``Cover'' BDD}}}\\
+    &\sum_{j\in T_t}x_j  \leq k_t & t=1,\ldots, K,&\onslide<2->{\alert{\rightarrow \textrm{ ``Type'' BDD}}}\\
+    & x_i\in\{0,1\} &i=1,\ldots,M. &
+\end{flalign*}
+     #+end_export
+**** Desc                                                             :BMCOL:
+     :PROPERTIES:
+     :BEAMER_col: 0.3
+     :END:
+     Here:
+     - $S_j$ -- adjacency lists,
+     - $k_t$ -- budgets,
+     - $f_i$ -- location costs,
+     - $x_i$ -- location decisions.
+*** How to build the cover BDD                                      :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :BEAMER_opt: t
+    :END:
+**** t-UFLP structure                                        :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.3
+     :BEAMER_opt: t
+     :END:
+     \centering
+     Original graph:\vspace{2ex}
+
+     \includegraphics[width=\textwidth]{img/cover-graph.eps}
+**** BDD example                                             :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.7
+     :BEAMER_opt: t
+     :END:
+     \centering
+     Cover BDD:\vspace{2ex}
+
+     #+LATEX: \includegraphics[width=\textwidth]{img/cover-DD.eps}
+
+**** Note                                                   :B_ignoreheading:
+     :PROPERTIES:
+     :BEAMER_env: ignoreheading
+     :END:
+     \vspace{2ex}
+     \textbf{Building the diagram:}
+     - Pick next point with the least ``uncertainty'': # of neighbors to be added to the BDD,
+     - Process its adjacency list,
+     - Repeat.
+*** How to build the type BDD                                       :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :BEAMER_opt: t
+    :END:
+**** BDD example                                             :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :BEAMER_opt: t
+     :END:
+     \centering
+     Part of Type BDD:\vspace{2ex}
+
+     #+LATEX: \includegraphics[height=0.7\textheight]{img/type_DD.eps}
+**** t-UFLP structure                                        :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :BEAMER_opt: t
+     :END:
+     - Consider: $\sum_{j\in T}x_j \leq k$ for $T=\{1,3,5,7,9,11\}$ and $k=2$.
+     - Stack such blocks vertically.
+     - Minimize the number of inversions with the Cover BDD by choosing the
+       order of variables within each block.
+     - Randomize the order of blocks.
+*** Consistent Path Problem for t-UFLP  :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+    #+begin_export latex
+\begin{subequations}
+\scriptsize
+  \begin{align*}
+    \min & \sum \tikzmarkin<2>{obj}f_i v^{\cov}_{i,\hi{i}}\tikzmarkend{obj},\\
+    \textrm{s.t. } & \tikzmarkin<3>{a}(3.5,-0.5)(-0.1,0.35)\sum_{i:\hi{i}=u\textrm{ or }\lo{i}=u}v^{\cov}_{iu} = \sum_{j:\hi{u}=j\textrm{ or } \lo{u}=j}v^{\cov}_{uj} \textrm{ for all } u\in L_2^{\cov}\cup\ldots\cup L_{(M-1)}^{\cov},\\
+         & \sum_{j:\hi{\ROOT}=j\textrm{ or } \lo{\ROOT}=j}v^{\cov}_{\ROOT{}j} = 1,\\
+         & \sum_{j:\hi{j}=u\textrm{ or } \lo{j}=u}v^{\cov}_{ju} = 1 \textrm{ for } u\in \{\T^{\cov},\F^{\cov}\},\tikzmarkend{a}\\
+         & \tikzmarkin<4>{b}(3.5,-0.5)(-0.1,0.35)\sum_{i:\hi{i}=u\textrm{ or }\lo{i}=u}v^{\type}_{iu} = \sum_{j:\hi{u}=j\textrm{ or } \lo{u}=j}v^{\type}_{uj} \textrm{ for all } u\in L_2^{\type}\cup\ldots\cup L_{(M-1)}^{\type},\\
+         & \sum_{j:\hi{\ROOT}=j\textrm{ or } \lo{\ROOT}=j}v^{\type}_{\ROOT{}j} = 1,\\
+         & \sum_{j:\hi{j}=u\textrm{ or } \lo{j}=u}v^{\type}_{ju} = 1 \textrm{ for } u\in \{\T^{\type},\F^{\type}\},\tikzmarkend{b}\\
+         &\tikzmarkin<5>{c}(0.1,-0.5)(-0.1,0.3) \sum_{j\in L^{\cov}_q} v^{\cov}_{j\hi{j}} = x_q \textrm{ for all } q=1,\ldots,M,\\
+         & \sum_{j\in L^{\type}_q} v^{\type}_{j\hi{j}} = x_q \textrm{ for all } q=1,\ldots,M,\tikzmarkend{c}\\
+         & v_{pq}\geq 0 \textrm{ for all valid } p,~q;\quad x_i\in\{0,1\}.
+  \end{align*}
+\end{subequations}
+    #+end_export
+
+** Solving the CPP
+*** Approaches to solve the problem
+    - Simple MIP (with $x_i\in\{0,1\}$ as decision variables),
+    - CPP + MIP (with continuous BDD flows + $x_i$ as variables),
+    - CPP $\rightarrow$ Align-BDD $\rightarrow$ shortest-path (no binary variables!)
+** Numerical experiments
+*** Comparing runtimes (random instances)
+    \includegraphics[width=\textwidth]{./img/tUFLP_runtimes_overview.eps}
+*** Runtimes breakdown
+    \includegraphics[width=\textwidth]{./img/tUFLP_runtimes_breakdown.eps}
+*** Alignment heuristic performance vs. problem structure
+    \includegraphics[width=\textwidth]{./img/various_simpl_vs_min.eps}
+** t-UFLP summary
+    :PROPERTIES:
+    :UNNUMBERED: t
+    :END:
+*** Summary on t-UFLP
+    - present an illustration for the Align-BDD heuristic (simplified problem),
+    - introduce a problem, propose a CPP reformulation,
+    - apply the heuristic to align the diagrams and obtain an LP,
+    - demonstrate the runtimes in numerical experiments,
+    - highlight the limits / effects of the problem structure.
 
 * Monte Carlo Tree Search for DSPI
+  :LOGBOOK:
+  CLOCK: [2021-10-30 Sat 13:34]--[2021-10-30 Sat 13:35] =>  0:01
+  :END:
+** Section outline
+   :PROPERTIES:
+   :UNNUMBERED: t
+   :END:
+#+LATEX: \tableofcontents[currentsection]
 ** Problem formulation
 *** A game of ``interdiction'': intro                               :B_frame:
     :PROPERTIES:
@@ -82,8 +467,10 @@
      :END:
      - polynomial DP algorithm for a DAG
      - exact DP algorithm, exp time for general case.
-
 ** What do we propose?
+   :PROPERTIES:
+   :UNNUMBERED: t
+   :END:
 *** Monte Carlo Tree Search
     - Maintain the game tree,
     - Try not to create all the nodes,
@@ -432,6 +819,10 @@ steps:\vspace{2ex}
  \widehat{Q}_i \gets \min_{j\in\children{i}} \Big\{ \widetilde{C}_{ij}(S_i) + \widehat{Q}_j\Big\}.
  \end{equation*}
  #+end_export
+*** SI-4. Bounds
+    Are inspired by Sefair & Smith 2016:
+    - \textbf{Lower bound:} restrict the *Attacker*. Make attacks ``expire'' after a single turn).
+    - \textbf{Upper bound:} restrict the *Interdictor*. Remove some arcs so that $G$ is a DAG ($\Rightarrow$ DSPI is simple to solve.) Repeat multiple times and choose the best bound.
 ** Numerical experiments
 *** Numerical experiments: strategy
    - How does it perform on pre-defined instances? (relative to the known optimum, and to the bounds)
@@ -532,7 +923,7 @@ steps:\vspace{2ex}
           edge from parent node[left, draw=none] {$c_{12}$}}};
       \draw[->, bend right, shorten >=2pt, shorten <=2pt] (b.east) to (a.east);
       \node[draw=none, fill=none, xshift=7mm] at ($(a)!.5!(b)$){$c_{21}$}; 
-    \end{tikzpicture}
+    \end{tikzpicture}\pause
  #+end_export
 **** Tree-1                                                  :B_column:BMCOL:
      :PROPERTIES:
@@ -600,6 +991,9 @@ steps:\vspace{2ex}
    \end{tikzpicture}
     #+end_export
 * TODO Conclusion
+  :PROPERTIES:
+  :UNNUMBERED: t
+  :END:
 ** Summary
 ** Future research
 

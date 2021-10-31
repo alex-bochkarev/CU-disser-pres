@@ -1,9 +1,17 @@
-\begin{thebibliography}{1}
+\begin{thebibliography}{2}
 \providecommand{\natexlab}[1]{#1}
 \providecommand{\url}[1]{\texttt{#1}}
 \expandafter\ifx\csname urlstyle\endcsname\relax
   \providecommand{\doi}[1]{doi: #1}\else
   \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Lozano et~al.(2020)Lozano, Bergman, and Smith]{lozano2020}
+Leonardo Lozano, David Bergman, and J.~Cole Smith.
+\newblock On the {{Consistent Path Problem}}.
+\newblock \emph{Operations Research}, 68\penalty0 (6):\penalty0 1913--1931,
+  October 2020.
+\newblock ISSN 0030-364X.
+\newblock \doi{10.1287/opre.2020.1979}.
 
 \bibitem[Sefair and Smith(2016)]{sefair2016}
 Jorge~A. Sefair and J.~Cole Smith.

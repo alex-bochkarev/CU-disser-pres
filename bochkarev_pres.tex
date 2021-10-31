@@ -1,4 +1,4 @@
-% Created 2021-10-30 Sat 00:09
+% Created 2021-10-30 Sat 23:10
 % Intended LaTeX compiler: pdflatex
 \documentclass[10pt, xcolor=svgnames]{beamer}
 \usepackage[utf8]{inputenc}
@@ -16,14 +16,17 @@
 \usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{calc}
+\usetikzlibrary{tikzmark}
+\usepackage[beamer]{hf-tikz}
 \usetikzlibrary{arrows} % For nice arrow tips (Align-BDD)
 \setbeamertemplate{blocks}[rounded][shadow=false]
 \usepackage{bibentry}
 \nobibliography*
 \input{notation_def.tex}
+\beamertemplatenavigationsymbolsempty
 \usetheme{Darmstadt}
 \author{Alexey Bochkarev}
-\date{2021-11-02, 08-30, Zoom / Freeman Hall 123}
+\date{2021-11-02 Tue, 08-30, Zoom / Freeman Hall 129}
 \title{Selected Topics in Network Optimization: Aligning BDDs for a Facility Location Problem and a Search Tree Method for DSPI.}
 \subtitle{Dissertation defense}
 \hypersetup{
@@ -36,38 +39,357 @@
 \begin{document}
 
 \maketitle
-\begin{frame}{Outline}
+{%<--- Start local changes
+\setbeamertemplate{navigation symbols}{}
+\usebackgroundtemplate{\includegraphics[width=\paperwidth]{./img/coffee.JPG}}
+\begin{frame}[plain,b]
+\centering
+\LARGE Thanks for joining in the morning!\vspace{4ex}
+\end{frame}
+}%<---- Finish local changes
+
+\begin{frame}[label={sec:orgb62bcd2}]{Presentation outline}
 \tableofcontents
 \end{frame}
 
-
 \section{{\bfseries\sffamily TODO} Aligning BDDs}
-\label{sec:orgda14710}
+\label{sec:orgb902488}
 \subsection{On BDD representations}
-\label{sec:org39a7528}
-\subsection{BDD alignment (``original'') problem}
-\label{sec:org32d4f59}
-\subsection{The simplified problem}
-\label{sec:org2b3a4ed}
-\subsection{Numerical experiments}
-\label{sec:org27b5420}
+\label{sec:org2db8d43}
+\begin{frame}[label={sec:org6053e5a}]{What is an (O)BDD?}
+\begin{columns}
+\begin{column}[t]{0.40\columnwidth}
+\textbf{In a nutshell:}
+\begin{itemize}
+\item A (maybe weighted) layered (D)AG
+\item Two outgoing arcs from each node
+\item One root, two terminals\vspace{2ex}
 
-\section{{\bfseries\sffamily TODO} A BDD-based approach to a Facility Location Problem}
-\label{sec:org04ea660}
-\subsection{Problem description}
-\label{sec:orge4528b2}
-\subsection{BDD representation}
-\label{sec:org21b2383}
-\subsection{Solving the CPP}
-\label{sec:orgcf4bcbf}
+\includegraphics[width=0.6\textwidth]{./img/simple-BDD.png}
+\end{itemize}
+\end{column}
+\begin{column}[t]{0.5\columnwidth}
+\textbf{Applications:}
+\begin{itemize}
+\item Can encode a Boolean function \ldots{}
+\item \ldots{} or a combinatorial opt problem.
+\end{itemize}
+
+\textbf{How it works:}
+\begin{itemize}
+\item A layer corresponds to a ``decision'' (binary variable),
+\item \alert{one-arc} (or yes-arc) -- \(x_i=1\),
+\item \alert{zero-arc} (or no-arc) -- \(x_i=0\).
+\item A \alert{path} from root to terminal corresponds to an assignment of all
+variables.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+\begin{frame}[label={sec:org1601c04}]{Order of variables matters: a MIS example}
+\begin{columns}
+\begin{column}{0.2\columnwidth}
+\centering
+\textbf{Original graph:}\vspace{2ex}
+\includegraphics[height=0.6\textheight]{./img/BDDsampleGraph.png}
+\end{column}
+\begin{column}{0.35\columnwidth}
+\centering
+\textbf{14 nodes:}\vspace{2ex}
+\includegraphics[height=0.7\textheight]{./img/BDDsampleRep1.png}
+\end{column}
+\begin{column}{0.55\columnwidth}
+\centering
+\textbf{17 nodes:}\vspace{2ex}
+\includegraphics[height=0.7\textheight]{./img/BDDsampleRep2.png}
+\end{column}
+\end{columns}
+\end{frame}
+\begin{frame}[label={sec:org1898885}]{The \alert{same} order of variables also matters}
+\begin{itemize}
+\item Many problems can be reformulated as a set of (connected) instances
+over a collection of BDDs.
+\item If we have the same order of variables: \cite{lozano2020} proposed an algorithm
+how to tackle such instances.
+\item So, finding a good shared order of variables might be desirable.
+\end{itemize}
+\end{frame}
+\begin{frame}[label={sec:org4d7d61c}]{A motivating example: t-UFLP}
+\begin{columns}
+\begin{column}{0.2\columnwidth}
+\includegraphics[height=0.8\textheight]{./img/tUFLP.png}
+\end{column}
+\begin{column}{0.8\columnwidth}
+\textbf{Assume:}
+\begin{itemize}
+\item A graph; can \alert{locate} a facility at any point,
+\item A located facility \alert{covers} all neighboring points.
+\end{itemize}
+
+\textbf{Objective:} cover all points at min cost.
+
+\textbf{Constraints:}
+\begin{itemize}
+\item Each point implies a facility \alert{``type''},
+\item There is a limit on number of facilities by type.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+\begin{frame}[label={sec:org2eb9891}]{How to merge two diagrams?}
+\centering
+\includegraphics[width=\textwidth]{./img/merging.png}
+
+Source: \cite{lozano2020}
+\end{frame}
+\begin{frame}[label={sec:org6d0673a}]{A motivating example: t-UFLP}
+\begin{columns}
+\begin{column}{0.2\columnwidth}
+\includegraphics[height=0.8\textheight]{./img/tUFLP.png}
+\end{column}
+\begin{column}{0.8\columnwidth}
+\textbf{Plan of attack:}
+\begin{itemize}
+\item Formulate the problem with two BDDs,
+\item \tikzmarkin<2->{this}Enforce the shared order of variables\tikzmarkend{this}, \onslide<2->{\alert{$\leftarrow$ this part}}
+\item Merge (``intersect'') the two diagrams into one*
+\item Solve a shortest-path in the intersection DD.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+\begin{frame}[label={sec:orgcc66cfb}]{In this section:}
+\begin{itemize}
+\item BDD alignment problem,
+\item A simplified model / heuristic,
+\item Numerical experiments on aligning BDDs.
+\end{itemize}
+\end{frame}
+\subsection{BDD alignment (``original'') problem}
+\label{sec:orgcf1ab80}
+\begin{frame}[label={sec:org39e79f7}]{BDD alignment problem}
+Let us denote \(T^*[D,\vec{v}]\) -- a ``transformed'' version of BDD \(D\) to variable order \(\vec{v}=(v_1,\ldots,v_N)\). Then:
+\begin{block}{BDD Alignment Problem / ``original'' problem}
+\begin{align*}
+     s^* = \min_{\vec{v}} \Big\{ |T^*[A, \vec{v}]| + |T^*[B, \vec{v}]| \Big\},
+\end{align*}
+\end{block}
+where \(|D|\) is the number of nodes in diagram \(D\). The problem is NP-hard (because the min single BDD is NP-hard).
+\end{frame}
+\begin{frame}[label={sec:orgb5f21dd}]{Research context}
+\begin{itemize}
+\item Vast literature on minimizing single BDD.
+\item One of the central ideas: ``Dynamic variable reordering'' / \alert{Sifting} algorithm (we will use it as a baseline).
+\item Limited consideration of the multi-BDD version, and all working with BDDs (obviously).
+\end{itemize}
+\begin{block}{The purpose of this work}
+Try to avoid manipulations with BDD as much as possible, by introducing a
+``simpler'' auxiliary problem.
+\end{block}
+\end{frame}
+\subsection{The simplified problem}
+\label{sec:org8e8be28}
+\begin{frame}[label={sec:org0bdb032}]{How the BDDs are transformed?}
+\end{frame}
+\begin{frame}[label={sec:org2822e2c}]{The simplified problem}
+\end{frame}
+\begin{frame}[label={sec:orgf09fe1d}]{Plan of attack with the simplified problem}
+\end{frame}
+\begin{frame}[label={sec:org8d50c31}]{How to solve it now? Key properties}
+\end{frame}
+\begin{frame}[label={sec:org467ae60}]{Branch\ldots{}}
+\end{frame}
+\begin{frame}[label={sec:org82dba8f}]{\ldots{} and bound.}
+\end{frame}
 \subsection{Numerical experiments}
-\label{sec:org5a08bbc}
+\label{sec:org345e588}
+\begin{frame}[label={sec:org9d133b2}]{Numerical experiments: strategy}
+\begin{itemize}
+\item First: consider the simplified problem in detail.
+\item Then: solve the original problem, benchmark vs the baseline and consider scaling.
+\item Analyze the solutions: original vs. simplified, problem structure.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[label={sec:org4cd5e49}]{Simplified problem: optima}
+\begin{columns}
+\begin{column}{0.5\columnwidth}
+\centering
+\includegraphics[width=\textwidth]{./img/no_opts.eps}
+\end{column}
+\begin{column}{0.5\columnwidth}
+\centering
+\includegraphics[width=\textwidth]{./img/opts_diam.eps}
+\end{column}
+\end{columns}
+\end{frame}
+\begin{frame}[label={sec:orgf8e88aa}]{Simplified problem: heuristics}
+\centering
+\includegraphics[width=\textwidth]{./img/simpl_heuristics.eps}
+\end{frame}
+\begin{frame}[label={sec:orgfe77061}]{Objectives relative to the ``greedy sifts''}
+\centering
+\includegraphics[width=\textwidth]{./img/orig_obj_histograms.eps}
+\end{frame}
+\begin{frame}[label={sec:org6158082}]{Scaling with the problem size}
+\centering
+\includegraphics[width=\textwidth]{./img/orig_runtimes.eps}
+\end{frame}
+
+\begin{frame}[label={sec:org17b7fc5}]{Simplified vs. Original problem solutions}
+\centering
+\includegraphics[width=\textwidth]{./img/heuristic_simscore.eps}
+\end{frame}
+\begin{frame}[label={sec:orgb6b3280}]{Effects of the problem structure}
+\centering
+\includegraphics[width=\textwidth]{./img/heuristic_simscore_vs_AB_simscore.eps}
+\end{frame}
+\section[BDDs for t-UFLP]{A BDD-based approach to a Facility Location Problem}
+\label{sec:org63df940}
+\subsection*{Section outline}
+\label{sec:orge2155c4}
+\tableofcontents[currentsection]
+\subsection{Problem description}
+\label{sec:org5fd2bf1}
+\begin{frame}[label={sec:org5670909}]{A variant of the Facility Location Problem}
+\begin{columns}
+\begin{column}{0.5\columnwidth}
+\includegraphics[width=\textwidth]{img/cover-graph.eps}
+\end{column}
+
+\begin{column}{0.5\columnwidth}
+\begin{itemize}
+\item \alert{Locate} facilities in a cheapest way, \ldots{}
+\item \ldots{} to \alert{cover} all points, \ldots{}
+\item \ldots{} respecting the \alert{budget} constraints, by facility ``type''.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+\subsection{BDD representation}
+\label{sec:org445b977}
+\begin{frame}[label={sec:orgb447907}]{Problem formulation}
+\begin{columns}
+\begin{column}{0.7\columnwidth}
+\begin{flalign*}
+  \min & \sum_{i=1}^M f_i x_i&&\\
+    \textrm{s.t. } & \sum_{j\in S_i}x_j  \geq 1 & i=1,\ldots,M, &\onslide<2->{\alert{\rightarrow  \textrm{ ``Cover'' BDD}}}\\
+    &\sum_{j\in T_t}x_j  \leq k_t & t=1,\ldots, K,&\onslide<2->{\alert{\rightarrow \textrm{ ``Type'' BDD}}}\\
+    & x_i\in\{0,1\} &i=1,\ldots,M. &
+\end{flalign*}
+\end{column}
+\begin{column}{0.3\columnwidth}
+Here:
+\begin{itemize}
+\item \(S_j\) -- adjacency lists,
+\item \(k_t\) -- budgets,
+\item \(f_i\) -- location costs,
+\item \(x_i\) -- location decisions.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+\begin{frame}[label={sec:orgd139457},t]{How to build the cover BDD}
+\begin{columns}
+\begin{column}[t]{0.3\columnwidth}
+\centering
+Original graph:\vspace{2ex}
+
+\includegraphics[width=\textwidth]{img/cover-graph.eps}
+\end{column}
+\begin{column}[t]{0.7\columnwidth}
+\centering
+Cover BDD:\vspace{2ex}
+
+\includegraphics[width=\textwidth]{img/cover-DD.eps}
+\end{column}
+\end{columns}
+
+\vspace{2ex}
+\textbf{Building the diagram:}
+\begin{itemize}
+\item Pick next point with the least ``uncertainty'': \# of neighbors to be added to the BDD,
+\item Process its adjacency list,
+\item Repeat.
+\end{itemize}
+\end{frame}
+\begin{frame}[label={sec:org2c46b26},t]{How to build the type BDD}
+\begin{columns}
+\begin{column}[t]{0.5\columnwidth}
+\centering
+Part of Type BDD:\vspace{2ex}
+
+\includegraphics[height=0.7\textheight]{img/type_DD.eps}
+\end{column}
+\begin{column}[t]{0.5\columnwidth}
+\begin{itemize}
+\item Consider: \(\sum_{j\in T}x_j \leq k\) for \(T=\{1,3,5,7,9,11\}\) and \(k=2\).
+\item Stack such blocks vertically.
+\item Minimize the number of inversions with the Cover BDD by choosing the
+order of variables within each block.
+\item Randomize the order of blocks.
+\end{itemize}
+\end{column}
+\end{columns}
+\end{frame}
+\begin{frame}[label={sec:orgf612a46}]{Consistent Path Problem for t-UFLP}
+\begin{subequations}
+\scriptsize
+  \begin{align*}
+    \min & \sum \tikzmarkin<2>{obj}f_i v^{\cov}_{i,\hi{i}}\tikzmarkend{obj},\\
+    \textrm{s.t. } & \tikzmarkin<3>{a}(3.5,-0.5)(-0.1,0.35)\sum_{i:\hi{i}=u\textrm{ or }\lo{i}=u}v^{\cov}_{iu} = \sum_{j:\hi{u}=j\textrm{ or } \lo{u}=j}v^{\cov}_{uj} \textrm{ for all } u\in L_2^{\cov}\cup\ldots\cup L_{(M-1)}^{\cov},\\
+         & \sum_{j:\hi{\ROOT}=j\textrm{ or } \lo{\ROOT}=j}v^{\cov}_{\ROOT{}j} = 1,\\
+         & \sum_{j:\hi{j}=u\textrm{ or } \lo{j}=u}v^{\cov}_{ju} = 1 \textrm{ for } u\in \{\T^{\cov},\F^{\cov}\},\tikzmarkend{a}\\
+         & \tikzmarkin<4>{b}(3.5,-0.5)(-0.1,0.35)\sum_{i:\hi{i}=u\textrm{ or }\lo{i}=u}v^{\type}_{iu} = \sum_{j:\hi{u}=j\textrm{ or } \lo{u}=j}v^{\type}_{uj} \textrm{ for all } u\in L_2^{\type}\cup\ldots\cup L_{(M-1)}^{\type},\\
+         & \sum_{j:\hi{\ROOT}=j\textrm{ or } \lo{\ROOT}=j}v^{\type}_{\ROOT{}j} = 1,\\
+         & \sum_{j:\hi{j}=u\textrm{ or } \lo{j}=u}v^{\type}_{ju} = 1 \textrm{ for } u\in \{\T^{\type},\F^{\type}\},\tikzmarkend{b}\\
+         &\tikzmarkin<5>{c}(0.1,-0.5)(-0.1,0.3) \sum_{j\in L^{\cov}_q} v^{\cov}_{j\hi{j}} = x_q \textrm{ for all } q=1,\ldots,M,\\
+         & \sum_{j\in L^{\type}_q} v^{\type}_{j\hi{j}} = x_q \textrm{ for all } q=1,\ldots,M,\tikzmarkend{c}\\
+         & v_{pq}\geq 0 \textrm{ for all valid } p,~q;\quad x_i\in\{0,1\}.
+  \end{align*}
+\end{subequations}
+\end{frame}
+
+\subsection{Solving the CPP}
+\label{sec:orgf678273}
+\begin{frame}[label={sec:orgb705f8e}]{Approaches to solve the problem}
+\begin{itemize}
+\item Simple MIP (with \(x_i\in\{0,1\}\) as decision variables),
+\item CPP + MIP (with continuous BDD flows + \(x_i\) as variables),
+\item CPP \(\rightarrow\) Align-BDD \(\rightarrow\) shortest-path (no binary variables!)
+\end{itemize}
+\end{frame}
+\subsection{Numerical experiments}
+\label{sec:org4842d8d}
+\begin{frame}[label={sec:org1dfff9f}]{Comparing runtimes (random instances)}
+\includegraphics[width=\textwidth]{./img/tUFLP_runtimes_overview.eps}
+\end{frame}
+\begin{frame}[label={sec:org45cc5c6}]{Runtimes breakdown}
+\includegraphics[width=\textwidth]{./img/tUFLP_runtimes_breakdown.eps}
+\end{frame}
+\begin{frame}[label={sec:org4fa9fd1}]{Alignment heuristic performance vs. problem structure}
+\includegraphics[width=\textwidth]{./img/various_simpl_vs_min.eps}
+\end{frame}
+\subsection*{t-UFLP summary}
+\label{sec:orgb0129f5}
+\begin{frame}[label={sec:org801f74a}]{Summary on t-UFLP}
+\begin{itemize}
+\item present an illustration for the Align-BDD heuristic (simplified problem),
+\item introduce a problem, propose a CPP reformulation,
+\item apply the heuristic to align the diagrams and obtain an LP,
+\item demonstrate the runtimes in numerical experiments,
+\item highlight the limits / effects of the problem structure.
+\end{itemize}
+\end{frame}
 
 \section{Monte Carlo Tree Search for DSPI}
-\label{sec:org7700361}
+\label{sec:orgcd44ecb}
+\subsection*{Section outline}
+\label{sec:org1c8151f}
+\tableofcontents[currentsection]
 \subsection{Problem formulation}
-\label{sec:orgbed14e0}
-\begin{frame}[label={sec:orgf3a62b1}]{A game of ``interdiction'': intro}
+\label{sec:orgc1d06ba}
+\begin{frame}[label={sec:org2b30a3c}]{A game of ``interdiction'': intro}
 \begin{columns}
 \begin{column}[t]{0.4\columnwidth}
 \begin{center}
@@ -87,7 +409,7 @@ We consider a \alert{dynamic} version of the game, following \cite{sefair2016}. 
 \end{columns}
 \end{frame}
 
-\begin{frame}[label={sec:orgd43ba44}]{A game of ``interdiction'': formulation}
+\begin{frame}[label={sec:orgdd2493a}]{A game of ``interdiction'': formulation}
 The Interdictor's optimal objective \(z^*\) can be expressed as:
 \begin{equation*}
 z^*(S,i) = \max_{S^\prime \subseteq \FS{i}\setminus S~:~|S\cup S^\prime|\leq b} \Big\{\min_{j\in\FS{i}} \{z^*(S\cup S^\prime, j) + \widetilde{c}_{ij}(S\cup S^\prime)\}\Big\},
@@ -108,10 +430,9 @@ where:
 \end{itemize}
 \end{block}
 \end{frame}
-
-\subsection{What do we propose?}
-\label{sec:org842b7e9}
-\begin{frame}[label={sec:orga094104}]{Monte Carlo Tree Search}
+\subsection*{What do we propose?}
+\label{sec:org7704484}
+\begin{frame}[label={sec:orgcd539e7}]{Monte Carlo Tree Search}
 \begin{itemize}
 \item Maintain the game tree,
 \item Try not to create all the nodes,
@@ -122,8 +443,8 @@ based on simulated games).
 \end{frame}
 
 \subsection{MCTS framework}
-\label{sec:orgf956fa4}
-\begin{frame}[label={sec:orgac17577}]{The ``game tree''}
+\label{sec:org093231a}
+\begin{frame}[label={sec:orge6b0aff}]{The ``game tree''}
 Create a ``game tree'', where \alert{nodes} contain the following information.
 \begin{itemize}
 \item Current \alert{status}
@@ -154,7 +475,7 @@ So, we iterate through \alert{episodes}, each one implying a ``full cycle'' of t
 \tikzstyle{rootnode} = [fill=none]
 \tikzstyle{edge from parent} = [draw=lightgray]
 
-\begin{frame}[label={sec:org3f8cc5d}]{Phase 1. Selection}
+\begin{frame}[label={sec:orge77e9ee}]{Phase 1. Selection}
 \begin{minipage}{0.3\textwidth}
 % selection
 \begin{tikzpicture}[%level distance=5mm,
@@ -198,7 +519,7 @@ child   {[NavyBlue] node[sel] {}
 \end{itemize}
 \end{minipage}
 \end{frame}
-\begin{frame}[label={sec:orgdd8e96e}]{Phase 2. Expansion}
+\begin{frame}[label={sec:org5b0392b}]{Phase 2. Expansion}
 % expansion
 \begin{minipage}{0.3\textwidth}
 \begin{tikzpicture}[%level distance=5mm,
@@ -242,7 +563,7 @@ child   {node {}
 \textbf{Note:} Some inconsistencies can be introduced here, between child and parent nodes.
 \end{minipage}
 \end{frame}
-\begin{frame}[label={sec:orga567d35}]{Phase 3. Roll-outs}
+\begin{frame}[label={sec:orgee15df8}]{Phase 3. Roll-outs}
 % roll-outs
 \begin{minipage}{0.3\textwidth}
 \begin{tikzpicture}[%level distance=5mm,
@@ -303,7 +624,7 @@ child {node {}
 \end{minipage}
 \end{frame}
 
-\begin{frame}[label={sec:org938aadd}]{Phase 4. Backpropagation}
+\begin{frame}[label={sec:orgfbe4100}]{Phase 4. Backpropagation}
 % backpropagation
 \begin{minipage}{0.3\textwidth}
 \begin{tikzpicture}[%level distance=5mm,
@@ -352,7 +673,7 @@ Information in each parent node, using the child nodes:
 \end{minipage}
 \end{frame}
 
-\begin{frame}[label={sec:orgebb0aa0}]{The Algorithm}
+\begin{frame}[label={sec:org2dd1685}]{The Algorithm}
 The algorithm can perform actions for both players. Each turn involves two
 steps:\vspace{2ex}
 
@@ -381,13 +702,13 @@ attractive'' child node of the root.
 \end{columns}
 \end{frame}
 
-\begin{frame}[label={sec:org42ae126}]{There are several secret ingredients}
+\begin{frame}[label={sec:orgfdce9d2}]{There are several secret ingredients}
 \begin{figure}
 \includegraphics[width=\textwidth]{img/ingredient.jpg}
 \end{figure}
 \end{frame}
 
-\begin{frame}[label={sec:org96e4ac3}]{SI-1. How to select?}
+\begin{frame}[label={sec:org4805004}]{SI-1. How to select?}
 \begin{itemize}
 \item \textbf{with probability $\varepsilon$}: choose at random;
 \item \textbf{otherwise}, a child node with the \alert{best score}:
@@ -398,7 +719,7 @@ R_j \defeq \underbrace{\sigma_i (\widetilde{C}_{ij} + \widehat{Q}_j)}_{\textrm{b
 
 ``Best'' here depends on the turn (the Evader will choose the smallest cost estimate, the Interdictor --- the largest).
 \end{frame}
-\begin{frame}[label={sec:orgdf91dcc}]{SI-2. How to prune?}
+\begin{frame}[label={sec:orgbb8876e}]{SI-2. How to prune?}
 We leverage the classic idea of \alert{alpha--beta pruning}:
 \vspace{2ex}
 \begin{columns}
@@ -442,7 +763,7 @@ Maintain two running numbers (bounds):
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}[label={sec:org97287ac}]{SI-3. How to back-propagate?}
+\begin{frame}[label={sec:org77c5c63}]{SI-3. How to back-propagate?}
 Assuming the Evader's turn, and \(i\) being the current game tree node:
 \begin{itemize}
 \item Update the bounds:
@@ -459,9 +780,16 @@ Assuming the Evader's turn, and \(i\) being the current game tree node:
 \widehat{Q}_i \gets \min_{j\in\children{i}} \Big\{ \widetilde{C}_{ij}(S_i) + \widehat{Q}_j\Big\}.
 \end{equation*}
 \end{frame}
+\begin{frame}[label={sec:org0f96b49}]{SI-4. Bounds}
+Are inspired by Sefair \& Smith 2016:
+\begin{itemize}
+\item \textbf{Lower bound:} restrict the \alert{Attacker}. Make attacks ``expire'' after a single turn).
+\item \textbf{Upper bound:} restrict the \alert{Interdictor}. Remove some arcs so that \(G\) is a DAG (\(\Rightarrow\) DSPI is simple to solve.) Repeat multiple times and choose the best bound.
+\end{itemize}
+\end{frame}
 \subsection{Numerical experiments}
-\label{sec:org412346c}
-\begin{frame}[label={sec:org6c9ee69}]{Numerical experiments: strategy}
+\label{sec:org72ac1bb}
+\begin{frame}[label={sec:org03abae9}]{Numerical experiments: strategy}
 \begin{itemize}
 \item How does it perform on pre-defined instances? (relative to the known optimum, and to the bounds)
 \item How does it perform on randomly generated instances with different budgets?
@@ -470,18 +798,18 @@ Assuming the Evader's turn, and \(i\) being the current game tree node:
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org9d415d5}]{Pre-defined instances}
+\begin{frame}[label={sec:orgcb50a57}]{Pre-defined instances}
 \begin{figure}
 \includegraphics[width=\textwidth]{img/fig_known.png}
 \end{figure}
 \end{frame}
-\begin{frame}[label={sec:orgdfe1a00}]{Random instances (snapshot)}
+\begin{frame}[label={sec:org52aab50}]{Random instances (snapshot)}
 \begin{figure}
 \includegraphics[width=\textwidth]{img/fig_bounds.png}\vspace{0.5ex}
 \includegraphics[width=\textwidth]{img/fig_runtimes.png}
 \end{figure}
 \end{frame}
-\begin{frame}[label={sec:org2df8e1b}]{Convergence profiles}
+\begin{frame}[label={sec:orgdc95029}]{Convergence profiles}
 \begin{minipage}{0.45\textwidth}
 {\scriptsize \centering $\varepsilon=0.05$\vspace{1ex} \\}
 \includegraphics[width=0.4\paperwidth]{img/conv_profile_2eps_0.05.png}
@@ -491,7 +819,7 @@ Assuming the Evader's turn, and \(i\) being the current game tree node:
 \includegraphics[width=0.4\paperwidth]{img/conv_profile_2eps_0.5.png}%
 \end{minipage}
 \end{frame}
-\begin{frame}[label={sec:orgcf66d3a}]{A remark: that's not just different runs}
+\begin{frame}[label={sec:org647e23f}]{A remark: that's not just different runs}
 \begin{columns}
 \begin{column}{0.6\columnwidth}
 \includegraphics[height=0.8\textheight]{img/treesizes.png}
@@ -502,12 +830,12 @@ For each value of \(\varepsilon\) (0.05, 0.5, and 1) we performed three runs, to
 \end{columns}
 \end{frame}
 
-\begin{frame}[label={sec:org189f3d5}]{Play-out vs. first-move strategy}
+\begin{frame}[label={sec:org03253ec}]{Play-out vs. first-move strategy}
 \includegraphics[width=\textwidth]{img/courage.eps}
 \end{frame}
 \subsection{On correctness}
-\label{sec:org509e676}
-\begin{frame}[label={sec:orgf068601}]{Why does it work? (A sketch on ``correctness'')}
+\label{sec:org04b76b3}
+\begin{frame}[label={sec:org9018422}]{Why does it work? (A sketch on ``correctness'')}
 \begin{theorem}[Proposition]
 $$\lim_{k\rightarrow \infty} \mathbb{P}\{Q^k_{\rnode{}} = \textrm{true optimum}\}=1$$
 \end{theorem}
@@ -521,7 +849,7 @@ A sketch of the proof:
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org5c4df26}]{Why in the world the tree is finite?}
+\begin{frame}[label={sec:org1b5186c}]{Why in the world the tree is finite?}
 \begin{columns}
 \begin{column}{0.15\columnwidth}
 Network:
@@ -542,7 +870,7 @@ Network:
       edge from parent node[left, draw=none] {$c_{12}$}}};
   \draw[->, bend right, shorten >=2pt, shorten <=2pt] (b.east) to (a.east);
   \node[draw=none, fill=none, xshift=7mm] at ($(a)!.5!(b)$){$c_{21}$}; 
-\end{tikzpicture}
+\end{tikzpicture}\pause
 \end{column}
 \begin{column}{0.30\columnwidth}
 After the \alert{first} expansion:
@@ -601,14 +929,14 @@ After the \alert{second} expansion:
 \end{column}
 \end{columns}
 \end{frame}
-\section{{\bfseries\sffamily TODO} Conclusion}
-\label{sec:orgf4ebbfc}
-\subsection{Summary}
-\label{sec:orgc513f47}
-\subsection{Future research}
-\label{sec:org83654f9}
+\section*{{\bfseries\sffamily TODO} Conclusion}
+\label{sec:org4728b51}
+\subsection*{Summary}
+\label{sec:orgb0bc5c0}
+\subsection*{Future research}
+\label{sec:org6fa1ce6}
 
-\begin{frame}[label={sec:org3313e39}]{Mentioned sources}
+\begin{frame}[label={sec:orgf9f51bf}]{Mentioned sources}
  \scriptsize
 \bibliographystyle{unsrtnat}
 \bibliography{../../Dropbox/bibliography/references}

@@ -1,4 +1,4 @@
-% Created 2021-10-30 Sat 23:10
+% Created 2021-10-31 Sun 19:37
 % Intended LaTeX compiler: pdflatex
 \documentclass[10pt, xcolor=svgnames]{beamer}
 \usepackage[utf8]{inputenc}
@@ -44,19 +44,19 @@
 \usebackgroundtemplate{\includegraphics[width=\paperwidth]{./img/coffee.JPG}}
 \begin{frame}[plain,b]
 \centering
-\LARGE Thanks for joining in the morning!\vspace{4ex}
+\LARGE \textbf{Thanks for joining!}\vspace{3.5ex}
 \end{frame}
 }%<---- Finish local changes
 
-\begin{frame}[label={sec:orgb62bcd2}]{Presentation outline}
+\begin{frame}[label={sec:org33ff888}]{Presentation outline}
 \tableofcontents
 \end{frame}
 
-\section{{\bfseries\sffamily TODO} Aligning BDDs}
-\label{sec:orgb902488}
+\section{Aligning BDDs}
+\label{sec:org43b2e65}
 \subsection{On BDD representations}
-\label{sec:org2db8d43}
-\begin{frame}[label={sec:org6053e5a}]{What is an (O)BDD?}
+\label{sec:org0ad9108}
+\begin{frame}[label={sec:orgd8a60f1}]{What is an (O)BDD?}
 \begin{columns}
 \begin{column}[t]{0.40\columnwidth}
 \textbf{In a nutshell:}
@@ -64,9 +64,9 @@
 \item A (maybe weighted) layered (D)AG
 \item Two outgoing arcs from each node
 \item One root, two terminals\vspace{2ex}
+\end{itemize}
 
 \includegraphics[width=0.6\textwidth]{./img/simple-BDD.png}
-\end{itemize}
 \end{column}
 \begin{column}[t]{0.5\columnwidth}
 \textbf{Applications:}
@@ -86,7 +86,7 @@ variables.
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}[label={sec:org1601c04}]{Order of variables matters: a MIS example}
+\begin{frame}[label={sec:orgdfb5132}]{Order of variables matters: a MIS example}
 \begin{columns}
 \begin{column}{0.2\columnwidth}
 \centering
@@ -105,16 +105,16 @@ variables.
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}[label={sec:org1898885}]{The \alert{same} order of variables also matters}
+\begin{frame}[label={sec:org79d08cc}]{The \alert{same} order of variables also matters}
 \begin{itemize}
 \item Many problems can be reformulated as a set of (connected) instances
 over a collection of BDDs.
-\item If we have the same order of variables: \cite{lozano2020} proposed an algorithm
+\item If we have the same order of variables: Lozano et al. proposed an algorithm
 how to tackle such instances.
 \item So, finding a good shared order of variables might be desirable.
 \end{itemize}
 \end{frame}
-\begin{frame}[label={sec:org4d7d61c}]{A motivating example: t-UFLP}
+\begin{frame}[label={sec:org946160c}]{A motivating example: t-UFLP}
 \begin{columns}
 \begin{column}{0.2\columnwidth}
 \includegraphics[height=0.8\textheight]{./img/tUFLP.png}
@@ -136,13 +136,13 @@ how to tackle such instances.
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}[label={sec:org2eb9891}]{How to merge two diagrams?}
+\begin{frame}[label={sec:org0b8194e}]{How to merge two diagrams?}
 \centering
 \includegraphics[width=\textwidth]{./img/merging.png}
 
-Source: \cite{lozano2020}
+\{\footnotesize\vspace{2ex}\textbf{Source:} Lozano et al. 2020\}
 \end{frame}
-\begin{frame}[label={sec:org6d0673a}]{A motivating example: t-UFLP}
+\begin{frame}[label={sec:orgf7e70a2}]{A motivating example: t-UFLP}
 \begin{columns}
 \begin{column}{0.2\columnwidth}
 \includegraphics[height=0.8\textheight]{./img/tUFLP.png}
@@ -158,7 +158,7 @@ Source: \cite{lozano2020}
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}[label={sec:orgcc66cfb}]{In this section:}
+\begin{frame}[label={sec:orgdf3696c}]{In this section:}
 \begin{itemize}
 \item BDD alignment problem,
 \item A simplified model / heuristic,
@@ -166,8 +166,8 @@ Source: \cite{lozano2020}
 \end{itemize}
 \end{frame}
 \subsection{BDD alignment (``original'') problem}
-\label{sec:orgcf1ab80}
-\begin{frame}[label={sec:org39e79f7}]{BDD alignment problem}
+\label{sec:orgdb842d9}
+\begin{frame}[label={sec:org9960267}]{BDD alignment problem}
 Let us denote \(T^*[D,\vec{v}]\) -- a ``transformed'' version of BDD \(D\) to variable order \(\vec{v}=(v_1,\ldots,v_N)\). Then:
 \begin{block}{BDD Alignment Problem / ``original'' problem}
 \begin{align*}
@@ -176,7 +176,7 @@ Let us denote \(T^*[D,\vec{v}]\) -- a ``transformed'' version of BDD \(D\) to va
 \end{block}
 where \(|D|\) is the number of nodes in diagram \(D\). The problem is NP-hard (because the min single BDD is NP-hard).
 \end{frame}
-\begin{frame}[label={sec:orgb5f21dd}]{Research context}
+\begin{frame}[label={sec:orge567fb3}]{Research context}
 \begin{itemize}
 \item Vast literature on minimizing single BDD.
 \item One of the central ideas: ``Dynamic variable reordering'' / \alert{Sifting} algorithm (we will use it as a baseline).
@@ -188,22 +188,437 @@ Try to avoid manipulations with BDD as much as possible, by introducing a
 \end{block}
 \end{frame}
 \subsection{The simplified problem}
-\label{sec:org8e8be28}
-\begin{frame}[label={sec:org0bdb032}]{How the BDDs are transformed?}
+\label{sec:orgef3c93d}
+\begin{frame}[label={sec:org5f7938c}]{How the BDDs are transformed?}
+\centering
+\includegraphics<1>[height=0.8\textheight]{./img/BDDtransf/before.png}%
+\includegraphics<2>[height=0.8\textheight]{./img/BDDtransf/F0.png}%
+\includegraphics<3>[height=0.8\textheight]{./img/BDDtransf/F1.png}%
+\includegraphics<4>[height=0.8\textheight]{./img/BDDtransf/F2.png}%
+\includegraphics<5>[height=0.8\textheight]{./img/BDDtransf/F3.png}%
+\includegraphics<6>[height=0.8\textheight]{./img/BDDtransf/F3_new.png}%
+\includegraphics<7>[height=0.8\textheight]{./img/BDDtransf/F4.png}%
+\includegraphics<8>[height=0.8\textheight]{./img/BDDtransf/F5.png}%
+\includegraphics<9>[height=0.8\textheight]{./img/BDDtransf/F6.png}%
+\includegraphics<10>[height=0.8\textheight]{./img/BDDtransf/F7.png}%
+\includegraphics<11>[height=0.8\textheight]{./img/BDDtransf/F8.png}%
+\includegraphics<12>[width=0.8\textwidth]{./img/BDDtransf/after.png}
 \end{frame}
-\begin{frame}[label={sec:org2822e2c}]{The simplified problem}
+\begin{frame}[label={sec:org5b69dea}]{The idea: let's just consider bounds!}
+\begin{columns}
+\begin{column}{0.5\columnwidth}
+\centering
+Ordered lists of \alert{labels} and the associated \alert{weights}\ldots{}\vspace{2ex}
+
+\begin{tikzpicture}[level distance=5mm,
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{\color{blue} $S$}
+  child {node[draw=none] {$x$}
+  child {node[labeln] {$x_1$}
+    child {node[labeln] {$x_2$}
+      child {node[labeln] {$x_3$}
+        child {node[labeln] {$x_4$}
+          child {node[labeln] {$x_5$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {$n_1$}
+      child {node[weightn] {$n_2$}
+        child {node[weightn] {$n_3$}
+          child {node[weightn] {$n_4$}
+            child {node[weightn] {$n_5$}}}}}}};
+  \end{tikzpicture}
+\end{column}
+\begin{column}{0.5\columnwidth}
+\centering
+\ldots{} and a \alert{swap} operation.\vspace{2ex}
+
+\begin{tikzpicture}[%
+  baseline=(current bounding box.center),
+  level 1/.style={level distance=3mm},
+  level 2/.style={level distance=5mm},
+  sibling distance=9mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black, minimum width=1cm},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S$}
+  child {node[draw=none] {$x$}
+    child {node[labeln] (i) {$x_i$}
+      child {node[labeln] (ip1) {$x_{i+1}$}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {$n_i$}
+      child {node[weightn] {$n_{i+1}$}}}};
+  \draw (i.west) edge[out=180, in=180, shorten >= 1pt, shorten <= 1pt, looseness=2.0, color=blue, stealth-stealth] (ip1.west);
+\end{tikzpicture}%
+~~$\Rightarrow$~~%
+\begin{tikzpicture}[%
+  baseline=(current bounding box.center),
+  level 1/.style={level distance=3mm},
+  level 2/.style={level distance=5mm},
+  sibling distance=9mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black, minimum width=1cm},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S^\prime$}
+  child {node[draw=none] {$x$}
+    child {node[labeln, blue] {$x_{i+1}$}
+      child {node[labeln, blue] {$x_i$}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {$n_i$}
+      child {node[weightn, blue] {$2n_i$}}}};
+\end{tikzpicture}%
+\end{column}
+\end{columns}
 \end{frame}
-\begin{frame}[label={sec:orgf09fe1d}]{Plan of attack with the simplified problem}
+\begin{frame}[label={sec:org3e0f102}]{Bounds for sift operations}
+\begin{columns}
+\begin{column}{0.5\columnwidth}
+\centering
+A sift \alert{up}:\vspace{2ex}
+
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{\color{blue} $S$}
+  child {node[draw=none] {$x$}
+  child {node[labeln] (x1) {$x_1$}
+    child {node[labeln] (x2) {$x_2$}
+      child {node[labeln] {$x_3$}
+        child {node[labeln, color=blue] (x4) {$x_4$}
+          child {node[labeln] {$x_5$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {$n_1$}
+      child {node[weightn] {$n_2$}
+        child {node[weightn] {$n_3$}
+          child {node[weightn] {$n_4$}
+            child {node[weightn] {$n_5$}}}}}}};
+  \draw (x4.west) edge[out=180, in=180, shorten >= 1pt, shorten <= 1pt, looseness=2.0, color=blue, -stealth] ($(x1.west)!.5!(x2.west)$);
+\end{tikzpicture}%
+\quad $\Rightarrow$\quad%
+  \begin{tikzpicture}[level distance=5mm,
+    baseline=(current bounding box.center),
+    sibling distance=6mm,
+    font=\normalsize,inner sep=3pt,
+    labeln/.style={draw=black},
+    weightn/.style={draw=none},
+    edge from parent/.style={draw=none}]
+    \node[draw=none]{\color{blue} $S^\prime$}
+    child {node[draw=none] {$x$}
+      child {node[labeln] {$x_1$}
+        child {node[labeln, blue] {$x_4$}
+          child {node[labeln, blue] {$x_2$}
+            child {node[labeln, blue] {$x_3$}
+              child {node[labeln] {$x_5$}}}}}}}
+    child {node[draw=none] {$n$}
+      child {node[weightn] {$n_1$}
+        child {node[weightn] {$n_2$}
+          child {node[weightn, blue] {$2n_2$}
+            child {node[weightn, blue] {$2n_3$}
+              child {node[weightn] {$n_5$}}}}}}};
+  \end{tikzpicture}
+\end{column}
+\begin{column}{0.5\columnwidth}
+\centering
+A sift \alert{down}:\vspace{2ex}
+
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{\color{blue} $S$}
+  child {node[draw=none] {$x$}
+  child {node[labeln] (x1) {$x_1$}
+    child {node[labeln, blue] (x2) {$x_2$}
+      child {node[labeln] {$x_3$}
+        child {node[labeln] (x4) {$x_4$}
+          child {node[labeln] (x5) {$x_5$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {$n_1$}
+      child {node[weightn] {$n_2$}
+        child {node[weightn] {$n_3$}
+          child {node[weightn] {$n_4$}
+            child {node[weightn] {$n_5$}}}}}}};
+  \draw (x2.west) edge[out=180, in=180, shorten >= 1pt, shorten <= 1pt, looseness=2.0, color=blue, -stealth] ($(x4.west)!.5!(x5.west)$);
+\end{tikzpicture}%
+\quad $\Rightarrow$\quad%
+  \begin{tikzpicture}[level distance=5mm,
+    baseline=(current bounding box.center),
+    sibling distance=6mm,
+    font=\normalsize,inner sep=3pt,
+    labeln/.style={draw=black},
+    weightn/.style={draw=none},
+    edge from parent/.style={draw=none}]
+    \node[draw=none]{\color{blue} $S^\prime$}
+    child {node[draw=none] {$x$}
+      child {node[labeln] {$x_1$}
+        child {node[labeln, blue] {$x_3$}
+          child {node[labeln, blue] {$x_4$}
+            child {node[labeln, blue] {$x_2$}
+              child {node[labeln] {$x_5$}}}}}}}
+    child {node[draw=none] {$n$}
+      child {node[weightn] {$n_1$}
+        child {node[weightn] {$n_2$}
+          child {node[weightn, blue] {$2n_2$}
+            child {node[weightn, blue] {$4n_2$}
+              child {node[weightn] {$n_5$}}}}}}};
+  \end{tikzpicture}
+\end{column}
+\end{columns}
 \end{frame}
-\begin{frame}[label={sec:org8d50c31}]{How to solve it now? Key properties}
+\begin{frame}[label={sec:orgd2e09f3}]{Plan of attack}
+\begin{enumerate}
+\item \textbf{Initial problem:} $$\min_{\vec{v}} \{|T^*[A,\vec{v}]|+|T^*[B;\vec{v}]|\}$$
+\item \textbf{Simplified problem:} \(A\rightarrow S_A\), \(B\rightarrow S_B\), solve: $$\min_{\vec{v}}\{|T^*[S_A,\vec{v}]|+|T^*[S_B,\vec{v}]|\}$$
+(We'll do branch-and-bound.)
+\item \textbf{Heuristic solution:} revise \(A\) and \(B\) to the obtained \(\vec{v}^*\).
+\end{enumerate}
 \end{frame}
-\begin{frame}[label={sec:org467ae60}]{Branch\ldots{}}
+\begin{frame}[label={sec:org26992a7}]{We use several properties to design a solution}
+\begin{columns}
+\begin{column}{0.33\columnwidth}
+\centering
+\alert{Aligned pairs} of elements remain aligned in an optimum.
+
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_A$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] {$a$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$b$}
+          child {node[draw=none] {$\ldots$}}}}}};
+\end{tikzpicture}%
+\quad%
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_B$}
+  child {node[draw=none] {$\ldots$}
+    child {node[draw=none] {$\ldots$}
+      child {node[labeln] {$a$}
+        child {node[draw=none] {$\ldots$}
+          child {node[labeln] {$b$}}}}}};
+\end{tikzpicture}%
+\quad $\Rightarrow$%
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$\vec{v}^*$}
+  child {node[draw=none] {$\ldots$}
+      child {node[labeln] {$a$}
+        child {node[draw=none] {$\ldots$}
+          child {node[labeln] {$b$}
+          child {node[draw=none] {$\ldots$}}}}}};
+\end{tikzpicture}
+\end{column}
+\begin{column}{0.33\columnwidth}
+\centering
+Corollary: it limits choices for the \alert{last element}.
+
+\begin{tikzpicture}[level distance=5mm,
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_A$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] {$w$}
+      child {node[draw=none, blue] {$\ldots$}
+        child {node[draw=none, blue] {$\ldots$}
+          child {node[draw=none, blue] {$\ldots$}}}}}};
+\end{tikzpicture}%
+{\scriptsize \quad\color{blue} $\leftarrow$ Disjoint $\rightarrow$\quad}%
+\begin{tikzpicture}[level distance=5mm,
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_B$}
+  child {node[draw=none] {$\ldots$}
+    child {node[draw=none] {$\ldots$}
+      child {node[labeln] {$w$}
+        child {node[draw=none, blue] {$\ldots$}
+          child {node[draw=none, blue] {$\ldots$}}}}}};
+\end{tikzpicture}%
+\end{column}
+\begin{column}{0.33\columnwidth}
+\centering
+No cost to revise an \alert{exponentially weighted} subsequence.
+
+
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{}
+  child {node[draw=none] {$x$}
+  child {node[labeln] (x1) {$x_1$}
+    child {node[labeln] (x2) {$x_2$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$x_k$}
+          child {node[draw=none] {$\ldots$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn, blue] {$n_1$}
+      child {node[weightn, blue] {$2n_1$}
+        child {node[draw=none] {}
+          child {node[weightn, blue] {$2^{k-1}n_1$}
+            child {node[weightn] {}}}}}}};
+\end{tikzpicture}%
+\end{column}
+\end{columns}
 \end{frame}
-\begin{frame}[label={sec:org82dba8f}]{\ldots{} and bound.}
+\begin{frame}[label={sec:org2bab7b5}]{Branch\ldots{}}
+\includegraphics[width=\textwidth]{./img/BB.pdf}
+\end{frame}
+\begin{frame}[label={sec:org13182b7}]{\ldots{} and bound.}
+\begin{columns}
+\begin{column}{0.3\columnwidth}
+\centering
+\alert{Upper} bound:\vspace{2ex}
+
+Any shared order would work:
+\begin{itemize}
+\item random order,
+\item \(S_A\) or \(S_B\),
+\item ``cheapest'' sifts, etc.
+\end{itemize}
+\end{column}
+\begin{column}{0.75\columnwidth}
+\centering
+\alert{Lower} bound: based on the following lemma.\vspace{2ex}
+
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S$}
+  child {node[draw=none] {$x$}
+  child {node[labeln] (x1) {$x_1$}
+    child {node[labeln] (x2) {$x_2$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$x_k$}
+          child {node[draw=none] {$\ldots$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {$n_1$}
+      child {node[weightn] {$n_2$}
+        child {node[draw=none] {}
+          child {node[weightn] {$n_k$}
+            child {node[weightn] {}}}}}}};
+\end{tikzpicture}%
+~~\vrule~~%
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{Target $\vec{v}$}
+  child {node[draw=none] {$x$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] (x2) {$x_2$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$x_1$}
+          child {node[draw=none] {$\ldots$}}}}}}};
+\end{tikzpicture}%
+$\Rightarrow |T^*[S, \vec{v}]| - |S|\geq 2n_1-n_2.$
+\end{column}
+\end{columns}
+\end{frame}
+\begin{frame}[label={sec:org2ddc9a5}]{A note on the lower bound}
+\begin{columns}
+\begin{column}{0.4\columnwidth}
+    \centering
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_A$}
+  child {node[draw=none] {$x$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] {$a$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$b$}
+          child {node[draw=none] {$\ldots$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {}
+      child {node[weightn] {$n^A_i$}
+        child {node[draw=none] {}
+          child {node[weightn] {}
+            child {node[weightn] {}}}}}}};
+\end{tikzpicture}%
+\quad\vrule\quad%
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_B$}
+  child {node[draw=none] {$x$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] {$b$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$a$}
+          child {node[draw=none] {$\ldots$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {}
+      child {node[weightn] {$n^B_j$}
+        child {node[draw=none] {}
+          child {node[weightn] {}
+            child {node[weightn] {}}}}}}};
+\end{tikzpicture}%
+\end{column}
+
+\begin{column}{0.6\columnwidth}
+ \centering
+In this situation, the new size \(|T^*[S_A,\vec{v}^*]|+|T^*[S_B,\vec{v}^*]|\) will be at least:
+\begin{equation*}
+|S_A|+|S_B|+ \min \{2n^A_i-n^A_{i+1}, 2n^B_j-n^B_{j+1}\}.
+\end{equation*}
+(done.)
+\end{column}
+\end{columns}
 \end{frame}
 \subsection{Numerical experiments}
-\label{sec:org345e588}
-\begin{frame}[label={sec:org9d133b2}]{Numerical experiments: strategy}
+\label{sec:org6b46b95}
+\begin{frame}[label={sec:org0c982c1}]{Numerical experiments: strategy}
 \begin{itemize}
 \item First: consider the simplified problem in detail.
 \item Then: solve the original problem, benchmark vs the baseline and consider scaling.
@@ -211,7 +626,7 @@ Try to avoid manipulations with BDD as much as possible, by introducing a
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org4cd5e49}]{Simplified problem: optima}
+\begin{frame}[label={sec:org5b48af8}]{Simplified problem: optima}
 \begin{columns}
 \begin{column}{0.5\columnwidth}
 \centering
@@ -223,35 +638,35 @@ Try to avoid manipulations with BDD as much as possible, by introducing a
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}[label={sec:orgf8e88aa}]{Simplified problem: heuristics}
+\begin{frame}[label={sec:org44c0bb5}]{Simplified problem: heuristics}
 \centering
 \includegraphics[width=\textwidth]{./img/simpl_heuristics.eps}
 \end{frame}
-\begin{frame}[label={sec:orgfe77061}]{Objectives relative to the ``greedy sifts''}
+\begin{frame}[label={sec:org7704bf1}]{Objectives relative to the ``greedy sifts''}
 \centering
 \includegraphics[width=\textwidth]{./img/orig_obj_histograms.eps}
 \end{frame}
-\begin{frame}[label={sec:org6158082}]{Scaling with the problem size}
+\begin{frame}[label={sec:orge037554}]{Scaling with the problem size}
 \centering
 \includegraphics[width=\textwidth]{./img/orig_runtimes.eps}
 \end{frame}
 
-\begin{frame}[label={sec:org17b7fc5}]{Simplified vs. Original problem solutions}
+\begin{frame}[label={sec:orga5ed5d0}]{Simplified vs. Original problem solutions}
 \centering
 \includegraphics[width=\textwidth]{./img/heuristic_simscore.eps}
 \end{frame}
-\begin{frame}[label={sec:orgb6b3280}]{Effects of the problem structure}
+\begin{frame}[label={sec:org46a69ef}]{Effects of the problem structure}
 \centering
 \includegraphics[width=\textwidth]{./img/heuristic_simscore_vs_AB_simscore.eps}
 \end{frame}
 \section[BDDs for t-UFLP]{A BDD-based approach to a Facility Location Problem}
-\label{sec:org63df940}
+\label{sec:org14763fc}
 \subsection*{Section outline}
-\label{sec:orge2155c4}
+\label{sec:org8bd4904}
 \tableofcontents[currentsection]
 \subsection{Problem description}
-\label{sec:org5fd2bf1}
-\begin{frame}[label={sec:org5670909}]{A variant of the Facility Location Problem}
+\label{sec:org8199fde}
+\begin{frame}[label={sec:org4b67041}]{A variant of the Facility Location Problem}
 \begin{columns}
 \begin{column}{0.5\columnwidth}
 \includegraphics[width=\textwidth]{img/cover-graph.eps}
@@ -267,8 +682,8 @@ Try to avoid manipulations with BDD as much as possible, by introducing a
 \end{columns}
 \end{frame}
 \subsection{BDD representation}
-\label{sec:org445b977}
-\begin{frame}[label={sec:orgb447907}]{Problem formulation}
+\label{sec:org5799c4e}
+\begin{frame}[label={sec:org98f4525}]{Problem formulation}
 \begin{columns}
 \begin{column}{0.7\columnwidth}
 \begin{flalign*}
@@ -289,7 +704,7 @@ Here:
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}[label={sec:orgd139457},t]{How to build the cover BDD}
+\begin{frame}[label={sec:orgeef238c},t]{How to build the cover BDD}
 \begin{columns}
 \begin{column}[t]{0.3\columnwidth}
 \centering
@@ -313,7 +728,7 @@ Cover BDD:\vspace{2ex}
 \item Repeat.
 \end{itemize}
 \end{frame}
-\begin{frame}[label={sec:org2c46b26},t]{How to build the type BDD}
+\begin{frame}[label={sec:org8da800b},t]{How to build the type BDD}
 \begin{columns}
 \begin{column}[t]{0.5\columnwidth}
 \centering
@@ -332,7 +747,7 @@ order of variables within each block.
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}[label={sec:orgf612a46}]{Consistent Path Problem for t-UFLP}
+\begin{frame}[label={sec:org4721e2e}]{Consistent Path Problem for t-UFLP}
 \begin{subequations}
 \scriptsize
   \begin{align*}
@@ -351,8 +766,8 @@ order of variables within each block.
 \end{frame}
 
 \subsection{Solving the CPP}
-\label{sec:orgf678273}
-\begin{frame}[label={sec:orgb705f8e}]{Approaches to solve the problem}
+\label{sec:org850f728}
+\begin{frame}[label={sec:orgc7863ad}]{Approaches to solve the problem}
 \begin{itemize}
 \item Simple MIP (with \(x_i\in\{0,1\}\) as decision variables),
 \item CPP + MIP (with continuous BDD flows + \(x_i\) as variables),
@@ -360,19 +775,19 @@ order of variables within each block.
 \end{itemize}
 \end{frame}
 \subsection{Numerical experiments}
-\label{sec:org4842d8d}
-\begin{frame}[label={sec:org1dfff9f}]{Comparing runtimes (random instances)}
+\label{sec:org0315ea7}
+\begin{frame}[label={sec:orge9a195c}]{Comparing runtimes (random instances)}
 \includegraphics[width=\textwidth]{./img/tUFLP_runtimes_overview.eps}
 \end{frame}
-\begin{frame}[label={sec:org45cc5c6}]{Runtimes breakdown}
+\begin{frame}[label={sec:org0eb30a5}]{Runtimes breakdown}
 \includegraphics[width=\textwidth]{./img/tUFLP_runtimes_breakdown.eps}
 \end{frame}
-\begin{frame}[label={sec:org4fa9fd1}]{Alignment heuristic performance vs. problem structure}
+\begin{frame}[label={sec:org22ec195}]{Alignment heuristic performance vs. problem structure}
 \includegraphics[width=\textwidth]{./img/various_simpl_vs_min.eps}
 \end{frame}
 \subsection*{t-UFLP summary}
-\label{sec:orgb0129f5}
-\begin{frame}[label={sec:org801f74a}]{Summary on t-UFLP}
+\label{sec:orgcb554d7}
+\begin{frame}[label={sec:org5d544d5}]{Summary on t-UFLP}
 \begin{itemize}
 \item present an illustration for the Align-BDD heuristic (simplified problem),
 \item introduce a problem, propose a CPP reformulation,
@@ -383,13 +798,13 @@ order of variables within each block.
 \end{frame}
 
 \section{Monte Carlo Tree Search for DSPI}
-\label{sec:orgcd44ecb}
+\label{sec:org0c2cdfe}
 \subsection*{Section outline}
-\label{sec:org1c8151f}
+\label{sec:orgeb74010}
 \tableofcontents[currentsection]
 \subsection{Problem formulation}
-\label{sec:orgc1d06ba}
-\begin{frame}[label={sec:org2b30a3c}]{A game of ``interdiction'': intro}
+\label{sec:org1163ac8}
+\begin{frame}[label={sec:org8204669}]{A game of ``interdiction'': intro}
 \begin{columns}
 \begin{column}[t]{0.4\columnwidth}
 \begin{center}
@@ -404,12 +819,12 @@ order of variables within each block.
 \item \alert{Attacker:} maximizes the User's cost by "attacking" the arcs, having a limited "budget".
 \end{itemize}
 
-We consider a \alert{dynamic} version of the game, following \cite{sefair2016}. (NP-hard)
+We consider a \alert{dynamic} version of the game, following Sefair \& Smith 2016. (NP-hard)
 \end{column}
 \end{columns}
 \end{frame}
 
-\begin{frame}[label={sec:orgdd2493a}]{A game of ``interdiction'': formulation}
+\begin{frame}[label={sec:org716002d}]{A game of ``interdiction'': formulation}
 The Interdictor's optimal objective \(z^*\) can be expressed as:
 \begin{equation*}
 z^*(S,i) = \max_{S^\prime \subseteq \FS{i}\setminus S~:~|S\cup S^\prime|\leq b} \Big\{\min_{j\in\FS{i}} \{z^*(S\cup S^\prime, j) + \widetilde{c}_{ij}(S\cup S^\prime)\}\Big\},
@@ -431,8 +846,8 @@ where:
 \end{block}
 \end{frame}
 \subsection*{What do we propose?}
-\label{sec:org7704484}
-\begin{frame}[label={sec:orgcd539e7}]{Monte Carlo Tree Search}
+\label{sec:org5ee59f7}
+\begin{frame}[label={sec:org35c1579}]{Monte Carlo Tree Search}
 \begin{itemize}
 \item Maintain the game tree,
 \item Try not to create all the nodes,
@@ -443,8 +858,8 @@ based on simulated games).
 \end{frame}
 
 \subsection{MCTS framework}
-\label{sec:org093231a}
-\begin{frame}[label={sec:orge6b0aff}]{The ``game tree''}
+\label{sec:org4faddba}
+\begin{frame}[label={sec:org348d859}]{The ``game tree''}
 Create a ``game tree'', where \alert{nodes} contain the following information.
 \begin{itemize}
 \item Current \alert{status}
@@ -475,7 +890,7 @@ So, we iterate through \alert{episodes}, each one implying a ``full cycle'' of t
 \tikzstyle{rootnode} = [fill=none]
 \tikzstyle{edge from parent} = [draw=lightgray]
 
-\begin{frame}[label={sec:orge77e9ee}]{Phase 1. Selection}
+\begin{frame}[label={sec:orgf774806}]{Phase 1. Selection}
 \begin{minipage}{0.3\textwidth}
 % selection
 \begin{tikzpicture}[%level distance=5mm,
@@ -519,7 +934,7 @@ child   {[NavyBlue] node[sel] {}
 \end{itemize}
 \end{minipage}
 \end{frame}
-\begin{frame}[label={sec:org5b0392b}]{Phase 2. Expansion}
+\begin{frame}[label={sec:orgb4e8e81}]{Phase 2. Expansion}
 % expansion
 \begin{minipage}{0.3\textwidth}
 \begin{tikzpicture}[%level distance=5mm,
@@ -563,7 +978,7 @@ child   {node {}
 \textbf{Note:} Some inconsistencies can be introduced here, between child and parent nodes.
 \end{minipage}
 \end{frame}
-\begin{frame}[label={sec:orgee15df8}]{Phase 3. Roll-outs}
+\begin{frame}[label={sec:orgb759051}]{Phase 3. Roll-outs}
 % roll-outs
 \begin{minipage}{0.3\textwidth}
 \begin{tikzpicture}[%level distance=5mm,
@@ -624,7 +1039,7 @@ child {node {}
 \end{minipage}
 \end{frame}
 
-\begin{frame}[label={sec:orgfbe4100}]{Phase 4. Backpropagation}
+\begin{frame}[label={sec:orgdf49ba0}]{Phase 4. Backpropagation}
 % backpropagation
 \begin{minipage}{0.3\textwidth}
 \begin{tikzpicture}[%level distance=5mm,
@@ -673,7 +1088,7 @@ Information in each parent node, using the child nodes:
 \end{minipage}
 \end{frame}
 
-\begin{frame}[label={sec:org2dd1685}]{The Algorithm}
+\begin{frame}[label={sec:org09e44ef}]{The Algorithm}
 The algorithm can perform actions for both players. Each turn involves two
 steps:\vspace{2ex}
 
@@ -702,13 +1117,13 @@ attractive'' child node of the root.
 \end{columns}
 \end{frame}
 
-\begin{frame}[label={sec:orgfdce9d2}]{There are several secret ingredients}
+\begin{frame}[label={sec:orgd376954}]{There are several secret ingredients}
 \begin{figure}
 \includegraphics[width=\textwidth]{img/ingredient.jpg}
 \end{figure}
 \end{frame}
 
-\begin{frame}[label={sec:org4805004}]{SI-1. How to select?}
+\begin{frame}[label={sec:org3baf649}]{SI-1. How to select?}
 \begin{itemize}
 \item \textbf{with probability $\varepsilon$}: choose at random;
 \item \textbf{otherwise}, a child node with the \alert{best score}:
@@ -719,7 +1134,7 @@ R_j \defeq \underbrace{\sigma_i (\widetilde{C}_{ij} + \widehat{Q}_j)}_{\textrm{b
 
 ``Best'' here depends on the turn (the Evader will choose the smallest cost estimate, the Interdictor --- the largest).
 \end{frame}
-\begin{frame}[label={sec:orgbb8876e}]{SI-2. How to prune?}
+\begin{frame}[label={sec:org96bd5a6}]{SI-2. How to prune?}
 We leverage the classic idea of \alert{alpha--beta pruning}:
 \vspace{2ex}
 \begin{columns}
@@ -763,7 +1178,7 @@ Maintain two running numbers (bounds):
 \end{column}
 \end{columns}
 \end{frame}
-\begin{frame}[label={sec:org77c5c63}]{SI-3. How to back-propagate?}
+\begin{frame}[label={sec:org7634d99}]{SI-3. How to back-propagate?}
 Assuming the Evader's turn, and \(i\) being the current game tree node:
 \begin{itemize}
 \item Update the bounds:
@@ -780,7 +1195,7 @@ Assuming the Evader's turn, and \(i\) being the current game tree node:
 \widehat{Q}_i \gets \min_{j\in\children{i}} \Big\{ \widetilde{C}_{ij}(S_i) + \widehat{Q}_j\Big\}.
 \end{equation*}
 \end{frame}
-\begin{frame}[label={sec:org0f96b49}]{SI-4. Bounds}
+\begin{frame}[label={sec:orgcfda384}]{SI-4. Bounds}
 Are inspired by Sefair \& Smith 2016:
 \begin{itemize}
 \item \textbf{Lower bound:} restrict the \alert{Attacker}. Make attacks ``expire'' after a single turn).
@@ -788,8 +1203,8 @@ Are inspired by Sefair \& Smith 2016:
 \end{itemize}
 \end{frame}
 \subsection{Numerical experiments}
-\label{sec:org72ac1bb}
-\begin{frame}[label={sec:org03abae9}]{Numerical experiments: strategy}
+\label{sec:org1c46322}
+\begin{frame}[label={sec:org155f1aa}]{Numerical experiments: strategy}
 \begin{itemize}
 \item How does it perform on pre-defined instances? (relative to the known optimum, and to the bounds)
 \item How does it perform on randomly generated instances with different budgets?
@@ -798,18 +1213,18 @@ Are inspired by Sefair \& Smith 2016:
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:orgcb50a57}]{Pre-defined instances}
+\begin{frame}[label={sec:org54d3ab8}]{Pre-defined instances}
 \begin{figure}
 \includegraphics[width=\textwidth]{img/fig_known.png}
 \end{figure}
 \end{frame}
-\begin{frame}[label={sec:org52aab50}]{Random instances (snapshot)}
+\begin{frame}[label={sec:org6a0d9be}]{Random instances (snapshot)}
 \begin{figure}
 \includegraphics[width=\textwidth]{img/fig_bounds.png}\vspace{0.5ex}
 \includegraphics[width=\textwidth]{img/fig_runtimes.png}
 \end{figure}
 \end{frame}
-\begin{frame}[label={sec:orgdc95029}]{Convergence profiles}
+\begin{frame}[label={sec:orge0d06c7}]{Convergence profiles}
 \begin{minipage}{0.45\textwidth}
 {\scriptsize \centering $\varepsilon=0.05$\vspace{1ex} \\}
 \includegraphics[width=0.4\paperwidth]{img/conv_profile_2eps_0.05.png}
@@ -819,7 +1234,7 @@ Are inspired by Sefair \& Smith 2016:
 \includegraphics[width=0.4\paperwidth]{img/conv_profile_2eps_0.5.png}%
 \end{minipage}
 \end{frame}
-\begin{frame}[label={sec:org647e23f}]{A remark: that's not just different runs}
+\begin{frame}[label={sec:org0247a53}]{A remark: that's not just different runs}
 \begin{columns}
 \begin{column}{0.6\columnwidth}
 \includegraphics[height=0.8\textheight]{img/treesizes.png}
@@ -830,12 +1245,12 @@ For each value of \(\varepsilon\) (0.05, 0.5, and 1) we performed three runs, to
 \end{columns}
 \end{frame}
 
-\begin{frame}[label={sec:org03253ec}]{Play-out vs. first-move strategy}
+\begin{frame}[label={sec:orgf3db83b}]{Play-out vs. first-move strategy}
 \includegraphics[width=\textwidth]{img/courage.eps}
 \end{frame}
 \subsection{On correctness}
-\label{sec:org04b76b3}
-\begin{frame}[label={sec:org9018422}]{Why does it work? (A sketch on ``correctness'')}
+\label{sec:orged8420a}
+\begin{frame}[label={sec:org6005134}]{Why does it work? (A sketch on ``correctness'')}
 \begin{theorem}[Proposition]
 $$\lim_{k\rightarrow \infty} \mathbb{P}\{Q^k_{\rnode{}} = \textrm{true optimum}\}=1$$
 \end{theorem}
@@ -849,7 +1264,7 @@ A sketch of the proof:
 \end{itemize}
 \end{frame}
 
-\begin{frame}[label={sec:org1b5186c}]{Why in the world the tree is finite?}
+\begin{frame}[label={sec:orgae903ac}]{Why in the world the tree is finite?}
 \begin{columns}
 \begin{column}{0.15\columnwidth}
 Network:
@@ -929,16 +1344,43 @@ After the \alert{second} expansion:
 \end{column}
 \end{columns}
 \end{frame}
-\section*{{\bfseries\sffamily TODO} Conclusion}
-\label{sec:org4728b51}
-\subsection*{Summary}
-\label{sec:orgb0bc5c0}
-\subsection*{Future research}
-\label{sec:org6fa1ce6}
-
-\begin{frame}[label={sec:orgf9f51bf}]{Mentioned sources}
- \scriptsize
-\bibliographystyle{unsrtnat}
-\bibliography{../../Dropbox/bibliography/references}
+\section*{Conclusion}
+\label{sec:orged6a4c8}
+\begin{frame}[label={sec:org88fb9df}]{Summary}
+\tableofcontents
+\end{frame}
+\begin{frame}[label={sec:org0ca662b}]{Future research}
+\begin{itemize}
+\item BDDs and related topics.
+\begin{itemize}
+\item Applications, \alert{relaxed} and \alert{restricted} BDDs.
+\item Other types of diagrams
+\item Perhaps, improving the simplified problem.
+\item Separately: perhaps, parallel algorithms?
+\end{itemize}
+\item MCTS and RL in general.
+\begin{itemize}
+\item Transposition tables,
+\item DNN / GNN for tree and roll-out policies.
+\item Especially -- separately -- learning algorithms?
+\item Other possible applications for MCTS (other variants of interdiction? SP?)
+\end{itemize}
+\end{itemize}
+\end{frame}
+\begin{frame}[label={sec:org5c26145}]{Your comments / questions are very welcome!}
+\begin{columns}
+\begin{column}{0.5\columnwidth}
+\centering
+\includegraphics{./img/website.eps}
+www.bochkarev.io/contact
+\end{column}
+\begin{column}{0.5\columnwidth}
+Also: I'm always available via email
+\begin{itemize}
+\item a@bochkarev.io
+\item abochka@g.clemson.edu
+\end{itemize}
+\end{column}
+\end{columns}
 \end{frame}
 \end{document}

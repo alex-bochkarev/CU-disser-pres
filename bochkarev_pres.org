@@ -31,7 +31,7 @@
  \usebackgroundtemplate{\includegraphics[width=\paperwidth]{./img/coffee.JPG}}
  \begin{frame}[plain,b]
  \centering
- \LARGE Thanks for joining in the morning!\vspace{4ex}
+ \LARGE \textbf{Thanks for joining!}\vspace{3.5ex}
  \end{frame}
  }%<---- Finish local changes
  #+end_export
@@ -42,8 +42,12 @@
     :END:
  #+LATEX: \tableofcontents
 
-* TODO Aligning BDDs
+* Aligning BDDs
   :LOGBOOK:
+  CLOCK: [2021-10-31 Sun 18:07]--[2021-10-31 Sun 18:53] =>  0:46
+  CLOCK: [2021-10-31 Sun 16:07]--[2021-10-31 Sun 17:28] =>  1:21
+  CLOCK: [2021-10-31 Sun 14:26]--[2021-10-31 Sun 15:05] =>  0:39
+  CLOCK: [2021-10-31 Sun 11:40]--[2021-10-31 Sun 13:13] =>  1:33
   CLOCK: [2021-10-30 Sat 21:11]--[2021-10-30 Sat 23:10] =>  1:59
   CLOCK: [2021-10-30 Sat 20:45]--[2021-10-30 Sat 20:45] =>  0:00
   :END:
@@ -63,7 +67,7 @@
      - Two outgoing arcs from each node
      - One root, two terminals\vspace{2ex}
 
-       \includegraphics[width=0.6\textwidth]{./img/simple-BDD.png}
+#+LATEX:       \includegraphics[width=0.6\textwidth]{./img/simple-BDD.png}
 **** Right                                                   :B_column:BMCOL:
      :PROPERTIES:
      :BEAMER_env: column
@@ -89,32 +93,38 @@
      :BEAMER_env: column
      :BEAMER_col: 0.2
      :END:
+     #+begin_export latex
      \centering
      \textbf{Original graph:}\vspace{2ex}
      \includegraphics[height=0.6\textheight]{./img/BDDsampleGraph.png}
+     #+end_export
 **** 14-nodes                                                :B_column:BMCOL:
      :PROPERTIES:
      :BEAMER_env: column
      :BEAMER_col: 0.35
      :END:
+     #+begin_export latex
      \centering
      \textbf{14 nodes:}\vspace{2ex}
      \includegraphics[height=0.7\textheight]{./img/BDDsampleRep1.png}
+     #+end_export
 **** 17-nodes                                                :B_column:BMCOL:
      :PROPERTIES:
      :BEAMER_env: column
      :BEAMER_col: 0.55
      :END:
+     #+begin_export latex
      \centering
      \textbf{17 nodes:}\vspace{2ex}
      \includegraphics[height=0.7\textheight]{./img/BDDsampleRep2.png}
+     #+end_export
 *** The *same* order of variables also matters                      :B_frame:
     :PROPERTIES:
     :BEAMER_env: frame
     :END:
     - Many problems can be reformulated as a set of (connected) instances
       over a collection of BDDs.
-    - If we have the same order of variables: cite:lozano2020 proposed an algorithm
+    - If we have the same order of variables: Lozano et al. proposed an algorithm
       how to tackle such instances.
     - So, finding a good shared order of variables might be desirable.
 *** A motivating example: t-UFLP                                    :B_frame:
@@ -126,7 +136,8 @@
      :BEAMER_env: column
      :BEAMER_col: 0.2
      :END:
-     \includegraphics[height=0.8\textheight]{./img/tUFLP.png}
+
+#+LATEX:     \includegraphics[height=0.8\textheight]{./img/tUFLP.png}
 **** Description                                             :B_column:BMCOL:
      :PROPERTIES:
      :BEAMER_env: column
@@ -145,10 +156,12 @@
     :PROPERTIES:
     :BEAMER_env: frame
     :END:
+    #+begin_export latex
     \centering
     \includegraphics[width=\textwidth]{./img/merging.png}
+    #+end_export
 
-    Source: cite:lozano2020
+    {\footnotesize\vspace{2ex}\textbf{Source:} Lozano et al. 2020}
 *** A motivating example: t-UFLP                                    :B_frame:
     :PROPERTIES:
     :BEAMER_env: frame
@@ -158,7 +171,7 @@
      :BEAMER_env: column
      :BEAMER_col: 0.2
      :END:
-     \includegraphics[height=0.8\textheight]{./img/tUFLP.png}
+#+LATEX:     \includegraphics[height=0.8\textheight]{./img/tUFLP.png}
 **** Description                                             :B_column:BMCOL:
      :PROPERTIES:
      :BEAMER_env: column
@@ -202,11 +215,486 @@ Let us denote $T^*[D,\vec{v}]$ -- a ``transformed'' version of BDD $D$ to variab
      ``simpler'' auxiliary problem.
 ** The simplified problem
 *** How the BDDs are transformed?
-*** The simplified problem
-*** Plan of attack with the simplified problem
-*** How to solve it now? Key properties
-*** Branch...
+    :PROPERTIES:
+    :UNNUMBERED: t
+    :END:
+    #+begin_export latex
+    \centering
+    \includegraphics<1>[height=0.8\textheight]{./img/BDDtransf/before.png}%
+    \includegraphics<2>[height=0.8\textheight]{./img/BDDtransf/F0.png}%
+    \includegraphics<3>[height=0.8\textheight]{./img/BDDtransf/F1.png}%
+    \includegraphics<4>[height=0.8\textheight]{./img/BDDtransf/F2.png}%
+    \includegraphics<5>[height=0.8\textheight]{./img/BDDtransf/F3.png}%
+    \includegraphics<6>[height=0.8\textheight]{./img/BDDtransf/F3_new.png}%
+    \includegraphics<7>[height=0.8\textheight]{./img/BDDtransf/F4.png}%
+    \includegraphics<8>[height=0.8\textheight]{./img/BDDtransf/F5.png}%
+    \includegraphics<9>[height=0.8\textheight]{./img/BDDtransf/F6.png}%
+    \includegraphics<10>[height=0.8\textheight]{./img/BDDtransf/F7.png}%
+    \includegraphics<11>[height=0.8\textheight]{./img/BDDtransf/F8.png}%
+    \includegraphics<12>[width=0.8\textwidth]{./img/BDDtransf/after.png}
+    #+end_export
+*** The idea: let's just consider bounds!                           :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Left                                                    :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     \centering
+     Ordered lists of *labels* and the associated *weights*...@@latex:\vspace{2ex}@@
+
+     #+begin_export latex
+ \begin{tikzpicture}[level distance=5mm,
+   sibling distance=6mm,
+   font=\normalsize,inner sep=3pt,
+   labeln/.style={draw=black},
+   weightn/.style={draw=none},
+   edge from parent/.style={draw=none}]
+   \node[draw=none]{\color{blue} $S$}
+   child {node[draw=none] {$x$}
+   child {node[labeln] {$x_1$}
+     child {node[labeln] {$x_2$}
+       child {node[labeln] {$x_3$}
+         child {node[labeln] {$x_4$}
+           child {node[labeln] {$x_5$}}}}}}}
+   child {node[draw=none] {$n$}
+     child {node[weightn] {$n_1$}
+       child {node[weightn] {$n_2$}
+         child {node[weightn] {$n_3$}
+           child {node[weightn] {$n_4$}
+             child {node[weightn] {$n_5$}}}}}}};
+   \end{tikzpicture}
+     #+end_export
+**** Right                                                   :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     \centering
+     ... and a *swap* operation.@@latex:\vspace{2ex}@@
+
+     #+begin_export latex
+  \begin{tikzpicture}[%
+    baseline=(current bounding box.center),
+    level 1/.style={level distance=3mm},
+    level 2/.style={level distance=5mm},
+    sibling distance=9mm,
+    font=\normalsize,inner sep=3pt,
+    labeln/.style={draw=black, minimum width=1cm},
+    weightn/.style={draw=none},
+    edge from parent/.style={draw=none}]
+    \node[draw=none]{$S$}
+    child {node[draw=none] {$x$}
+      child {node[labeln] (i) {$x_i$}
+        child {node[labeln] (ip1) {$x_{i+1}$}}}}
+    child {node[draw=none] {$n$}
+      child {node[weightn] {$n_i$}
+        child {node[weightn] {$n_{i+1}$}}}};
+    \draw (i.west) edge[out=180, in=180, shorten >= 1pt, shorten <= 1pt, looseness=2.0, color=blue, stealth-stealth] (ip1.west);
+  \end{tikzpicture}%
+  ~~$\Rightarrow$~~%
+  \begin{tikzpicture}[%
+    baseline=(current bounding box.center),
+    level 1/.style={level distance=3mm},
+    level 2/.style={level distance=5mm},
+    sibling distance=9mm,
+    font=\normalsize,inner sep=3pt,
+    labeln/.style={draw=black, minimum width=1cm},
+    weightn/.style={draw=none},
+    edge from parent/.style={draw=none}]
+    \node[draw=none]{$S^\prime$}
+    child {node[draw=none] {$x$}
+      child {node[labeln, blue] {$x_{i+1}$}
+        child {node[labeln, blue] {$x_i$}}}}
+    child {node[draw=none] {$n$}
+      child {node[weightn] {$n_i$}
+        child {node[weightn, blue] {$2n_i$}}}};
+  \end{tikzpicture}%
+     #+end_export
+*** Bounds for sift operations                                      :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Sift-up                                                 :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     \centering
+     A sift *up*:\vspace{2ex}
+
+     #+begin_export latex
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{\color{blue} $S$}
+  child {node[draw=none] {$x$}
+  child {node[labeln] (x1) {$x_1$}
+    child {node[labeln] (x2) {$x_2$}
+      child {node[labeln] {$x_3$}
+        child {node[labeln, color=blue] (x4) {$x_4$}
+          child {node[labeln] {$x_5$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {$n_1$}
+      child {node[weightn] {$n_2$}
+        child {node[weightn] {$n_3$}
+          child {node[weightn] {$n_4$}
+            child {node[weightn] {$n_5$}}}}}}};
+  \draw (x4.west) edge[out=180, in=180, shorten >= 1pt, shorten <= 1pt, looseness=2.0, color=blue, -stealth] ($(x1.west)!.5!(x2.west)$);
+\end{tikzpicture}%
+\quad $\Rightarrow$\quad%
+  \begin{tikzpicture}[level distance=5mm,
+    baseline=(current bounding box.center),
+    sibling distance=6mm,
+    font=\normalsize,inner sep=3pt,
+    labeln/.style={draw=black},
+    weightn/.style={draw=none},
+    edge from parent/.style={draw=none}]
+    \node[draw=none]{\color{blue} $S^\prime$}
+    child {node[draw=none] {$x$}
+      child {node[labeln] {$x_1$}
+        child {node[labeln, blue] {$x_4$}
+          child {node[labeln, blue] {$x_2$}
+            child {node[labeln, blue] {$x_3$}
+              child {node[labeln] {$x_5$}}}}}}}
+    child {node[draw=none] {$n$}
+      child {node[weightn] {$n_1$}
+        child {node[weightn] {$n_2$}
+          child {node[weightn, blue] {$2n_2$}
+            child {node[weightn, blue] {$2n_3$}
+              child {node[weightn] {$n_5$}}}}}}};
+  \end{tikzpicture}
+     #+end_export
+**** Sift-down                                               :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     \centering
+     A sift *down*:\vspace{2ex}
+
+     #+begin_export latex
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{\color{blue} $S$}
+  child {node[draw=none] {$x$}
+  child {node[labeln] (x1) {$x_1$}
+    child {node[labeln, blue] (x2) {$x_2$}
+      child {node[labeln] {$x_3$}
+        child {node[labeln] (x4) {$x_4$}
+          child {node[labeln] (x5) {$x_5$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {$n_1$}
+      child {node[weightn] {$n_2$}
+        child {node[weightn] {$n_3$}
+          child {node[weightn] {$n_4$}
+            child {node[weightn] {$n_5$}}}}}}};
+  \draw (x2.west) edge[out=180, in=180, shorten >= 1pt, shorten <= 1pt, looseness=2.0, color=blue, -stealth] ($(x4.west)!.5!(x5.west)$);
+\end{tikzpicture}%
+\quad $\Rightarrow$\quad%
+  \begin{tikzpicture}[level distance=5mm,
+    baseline=(current bounding box.center),
+    sibling distance=6mm,
+    font=\normalsize,inner sep=3pt,
+    labeln/.style={draw=black},
+    weightn/.style={draw=none},
+    edge from parent/.style={draw=none}]
+    \node[draw=none]{\color{blue} $S^\prime$}
+    child {node[draw=none] {$x$}
+      child {node[labeln] {$x_1$}
+        child {node[labeln, blue] {$x_3$}
+          child {node[labeln, blue] {$x_4$}
+            child {node[labeln, blue] {$x_2$}
+              child {node[labeln] {$x_5$}}}}}}}
+    child {node[draw=none] {$n$}
+      child {node[weightn] {$n_1$}
+        child {node[weightn] {$n_2$}
+          child {node[weightn, blue] {$2n_2$}
+            child {node[weightn, blue] {$4n_2$}
+              child {node[weightn] {$n_5$}}}}}}};
+  \end{tikzpicture}
+     #+end_export
+*** Plan of attack                                                  :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+    1. \textbf{Initial problem:} $$\min_{\vec{v}} \{|T^*[A,\vec{v}]|+|T^*[B;\vec{v}]|\}$$
+    2. \textbf{Simplified problem:} $A\rightarrow S_A$, $B\rightarrow S_B$, solve: $$\min_{\vec{v}}\{|T^*[S_A,\vec{v}]|+|T^*[S_B,\vec{v}]|\}$$
+       (We'll do branch-and-bound.)
+    4. \textbf{Heuristic solution:} revise $A$ and $B$ to the obtained $\vec{v}^*$.
+*** We use several properties to design a solution                  :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Align-pair                                              :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.33
+     :END:
+     \centering
+     *Aligned pairs* of elements remain aligned in an optimum.
+
+     #+begin_export latex
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_A$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] {$a$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$b$}
+          child {node[draw=none] {$\ldots$}}}}}};
+\end{tikzpicture}%
+\quad%
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_B$}
+  child {node[draw=none] {$\ldots$}
+    child {node[draw=none] {$\ldots$}
+      child {node[labeln] {$a$}
+        child {node[draw=none] {$\ldots$}
+          child {node[labeln] {$b$}}}}}};
+\end{tikzpicture}%
+\quad $\Rightarrow$%
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$\vec{v}^*$}
+  child {node[draw=none] {$\ldots$}
+      child {node[labeln] {$a$}
+        child {node[draw=none] {$\ldots$}
+          child {node[labeln] {$b$}
+          child {node[draw=none] {$\ldots$}}}}}};
+\end{tikzpicture}
+     #+end_export
+**** Last element                                            :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.33
+     :END:
+     \centering
+     Corollary: it limits choices for the *last element*.
+
+     #+begin_export latex
+\begin{tikzpicture}[level distance=5mm,
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_A$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] {$w$}
+      child {node[draw=none, blue] {$\ldots$}
+        child {node[draw=none, blue] {$\ldots$}
+          child {node[draw=none, blue] {$\ldots$}}}}}};
+\end{tikzpicture}%
+{\scriptsize \quad\color{blue} $\leftarrow$ Disjoint $\rightarrow$\quad}%
+\begin{tikzpicture}[level distance=5mm,
+  sibling distance=6mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_B$}
+  child {node[draw=none] {$\ldots$}
+    child {node[draw=none] {$\ldots$}
+      child {node[labeln] {$w$}
+        child {node[draw=none, blue] {$\ldots$}
+          child {node[draw=none, blue] {$\ldots$}}}}}};
+\end{tikzpicture}%
+     #+end_export
+**** Exp subseq                                              :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.33
+     :END:
+     \centering
+     No cost to revise an *exponentially weighted* subsequence.
+
+     
+     #+begin_export latex
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{}
+  child {node[draw=none] {$x$}
+  child {node[labeln] (x1) {$x_1$}
+    child {node[labeln] (x2) {$x_2$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$x_k$}
+          child {node[draw=none] {$\ldots$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn, blue] {$n_1$}
+      child {node[weightn, blue] {$2n_1$}
+        child {node[draw=none] {}
+          child {node[weightn, blue] {$2^{k-1}n_1$}
+            child {node[weightn] {}}}}}}};
+\end{tikzpicture}%
+     #+end_export
+*** Branch...                                                       :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+#+LATEX:    \includegraphics[width=\textwidth]{./img/BB.pdf}
 *** ... and bound.
+**** Left: UB                                                :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.3
+     :END:
+     \centering
+     *Upper* bound:\vspace{2ex}
+     
+     Any shared order would work:
+     - random order,
+     - $S_A$ or $S_B$,
+     - ``cheapest'' sifts, etc.
+**** Right: LB                                               :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.75
+     :END:
+     \centering
+     *Lower* bound: based on the following lemma.\vspace{2ex}
+
+     #+begin_export latex
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S$}
+  child {node[draw=none] {$x$}
+  child {node[labeln] (x1) {$x_1$}
+    child {node[labeln] (x2) {$x_2$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$x_k$}
+          child {node[draw=none] {$\ldots$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {$n_1$}
+      child {node[weightn] {$n_2$}
+        child {node[draw=none] {}
+          child {node[weightn] {$n_k$}
+            child {node[weightn] {}}}}}}};
+\end{tikzpicture}%
+~~\vrule~~%
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{Target $\vec{v}$}
+  child {node[draw=none] {$x$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] (x2) {$x_2$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$x_1$}
+          child {node[draw=none] {$\ldots$}}}}}}};
+\end{tikzpicture}%
+$\Rightarrow |T^*[S, \vec{v}]| - |S|\geq 2n_1-n_2.$
+     #+end_export
+*** A note on the lower bound                                       :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+**** Left                                                    :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.4
+     :END:
+    #+begin_export latex
+    \centering
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_A$}
+  child {node[draw=none] {$x$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] {$a$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$b$}
+          child {node[draw=none] {$\ldots$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {}
+      child {node[weightn] {$n^A_i$}
+        child {node[draw=none] {}
+          child {node[weightn] {}
+            child {node[weightn] {}}}}}}};
+\end{tikzpicture}%
+\quad\vrule\quad%
+\begin{tikzpicture}[level distance=5mm,
+  baseline=(current bounding box.center),
+  sibling distance=8mm,
+  font=\normalsize,inner sep=3pt,
+  labeln/.style={draw=black},
+  weightn/.style={draw=none},
+  edge from parent/.style={draw=none}]
+  \node[draw=none]{$S_B$}
+  child {node[draw=none] {$x$}
+  child {node[draw=none] {$\ldots$}
+    child {node[labeln] {$b$}
+      child {node[draw=none] {$\ldots$}
+        child {node[labeln] {$a$}
+          child {node[draw=none] {$\ldots$}}}}}}}
+  child {node[draw=none] {$n$}
+    child {node[weightn] {}
+      child {node[weightn] {$n^B_j$}
+        child {node[draw=none] {}
+          child {node[weightn] {}
+            child {node[weightn] {}}}}}}};
+\end{tikzpicture}%
+    #+end_export
+
+**** Right                                                   :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.6
+     :END:
+     \centering
+    In this situation, the new size $|T^*[S_A,\vec{v}^*]|+|T^*[S_B,\vec{v}^*]|$ will be at least:
+    #+begin_export latex
+    \begin{equation*}
+    |S_A|+|S_B|+ \min \{2n^A_i-n^A_{i+1}, 2n^B_j-n^B_{j+1}\}.
+    \end{equation*}
+    (done.)
+    #+end_export
 ** Numerical experiments
 *** Numerical experiments: strategy
     - First: consider the simplified problem in detail.
@@ -220,31 +708,45 @@ Let us denote $T^*[D,\vec{v}]$ -- a ``transformed'' version of BDD $D$ to variab
      :BEAMER_env: column
      :BEAMER_col: 0.5
      :END:
+     #+begin_export latex
      \centering
      \includegraphics[width=\textwidth]{./img/no_opts.eps}
+     #+end_export
 **** Right                                                   :B_column:BMCOL:
      :PROPERTIES:
      :BEAMER_env: column
      :BEAMER_col: 0.5
      :END:
+     #+begin_export latex
      \centering
      \includegraphics[width=\textwidth]{./img/opts_diam.eps}
+     #+end_export
 *** Simplified problem: heuristics
+    #+begin_export latex
      \centering
      \includegraphics[width=\textwidth]{./img/simpl_heuristics.eps}
+    #+end_export
 *** Objectives relative to the ``greedy sifts''
+    #+begin_export latex
      \centering
      \includegraphics[width=\textwidth]{./img/orig_obj_histograms.eps}
+    #+end_export
 *** Scaling with the problem size
+    #+begin_export latex
      \centering
      \includegraphics[width=\textwidth]{./img/orig_runtimes.eps}
+    #+end_export
 
 *** Simplified vs. Original problem solutions
+    #+begin_export latex
      \centering
      \includegraphics[width=\textwidth]{./img/heuristic_simscore.eps}
+    #+end_export
 *** Effects of the problem structure
+    #+begin_export latex
      \centering
      \includegraphics[width=\textwidth]{./img/heuristic_simscore_vs_AB_simscore.eps}
+    #+end_export
 * A BDD-based approach to a Facility Location Problem
   :PROPERTIES:
   :ALT_TITLE: BDDs for t-UFLP
@@ -318,7 +820,7 @@ Let us denote $T^*[D,\vec{v}]$ -- a ``transformed'' version of BDD $D$ to variab
      \centering
      Original graph:\vspace{2ex}
 
-     \includegraphics[width=\textwidth]{img/cover-graph.eps}
+#+LATEX:     \includegraphics[width=\textwidth]{img/cover-graph.eps}
 **** BDD example                                             :B_column:BMCOL:
      :PROPERTIES:
      :BEAMER_env: column
@@ -394,11 +896,11 @@ Let us denote $T^*[D,\vec{v}]$ -- a ``transformed'' version of BDD $D$ to variab
     - CPP $\rightarrow$ Align-BDD $\rightarrow$ shortest-path (no binary variables!)
 ** Numerical experiments
 *** Comparing runtimes (random instances)
-    \includegraphics[width=\textwidth]{./img/tUFLP_runtimes_overview.eps}
+#+LATEX:    \includegraphics[width=\textwidth]{./img/tUFLP_runtimes_overview.eps}
 *** Runtimes breakdown
-    \includegraphics[width=\textwidth]{./img/tUFLP_runtimes_breakdown.eps}
+#+LATEX:    \includegraphics[width=\textwidth]{./img/tUFLP_runtimes_breakdown.eps}
 *** Alignment heuristic performance vs. problem structure
-    \includegraphics[width=\textwidth]{./img/various_simpl_vs_min.eps}
+#+LATEX:    \includegraphics[width=\textwidth]{./img/various_simpl_vs_min.eps}
 ** t-UFLP summary
     :PROPERTIES:
     :UNNUMBERED: t
@@ -442,7 +944,7 @@ Let us denote $T^*[D,\vec{v}]$ -- a ``transformed'' version of BDD $D$ to variab
     - *User:* seeks to run through the graph, \textcircled{s} to \textcircled{t}, at min cost.
     - *Attacker:* maximizes the User's cost by "attacking" the arcs, having a limited "budget".
 
-   We consider a *dynamic* version of the game, following cite:sefair2016. (NP-hard)
+   We consider a *dynamic* version of the game, following Sefair & Smith 2016. (NP-hard)
 
 *** A game of ``interdiction'': formulation                         :B_frame:
     :PROPERTIES:
@@ -990,23 +1492,44 @@ steps:\vspace{2ex}
      \node[draw=none, xshift=-3.5mm] at (tn1.west) {$(B)$};
    \end{tikzpicture}
     #+end_export
-* TODO Conclusion
+* Conclusion
   :PROPERTIES:
   :UNNUMBERED: t
   :END:
-** Summary
-** Future research
-
-* Technical :ignore:
-*** Mentioned sources                                               :B_frame:
+*** Summary
     :PROPERTIES:
-    :BEAMER_env: frame
+    :UNNUMBERED: t
     :END:
-    \scriptsize
-   bibliographystyle:unsrtnat
-   [[bibliography:/home/bochkarev/Dropbox/bibliography/references.bib]]
-
-* Org  :noexport:
+ #+LATEX: \tableofcontents
+*** Future research
+    * BDDs and related topics.
+      + Applications, *relaxed* and *restricted* BDDs.
+      + Other types of diagrams
+      + Perhaps, improving the simplified problem.
+      + Separately: perhaps, parallel algorithms?
+    * MCTS and RL in general.
+      + Transposition tables,
+      + DNN / GNN for tree and roll-out policies.
+      + Especially -- separately -- learning algorithms?
+      + Other possible applications for MCTS (other variants of interdiction? SP?)
+*** Your comments / questions are very welcome!
+**** Left                                                    :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     \centering
+     #+LATEX: \includegraphics{./img/website.eps}
+     www.bochkarev.io/contact
+**** Right                                                   :B_column:BMCOL:
+     :PROPERTIES:
+     :BEAMER_env: column
+     :BEAMER_col: 0.5
+     :END:
+     Also: I'm always available via email
+     - a@bochkarev.io
+     - abochka@g.clemson.edu
+* Org                                                              :noexport:
 ** TODO Formatting brush-up
 ** TODO Dry run
 

@@ -152,16 +152,6 @@
      \textbf{Constraints:}
      - Each point implies a facility *``type''*,
      - There is a limit on number of facilities by type.
-*** How to merge two diagrams?                                      :B_frame:
-    :PROPERTIES:
-    :BEAMER_env: frame
-    :END:
-    #+begin_export latex
-    \centering
-    \includegraphics[width=\textwidth]{./img/merging.png}
-    #+end_export
-
-    {\footnotesize\vspace{2ex}\textbf{Source:} Lozano et al. 2020}
 *** A motivating example: t-UFLP                                    :B_frame:
     :PROPERTIES:
     :BEAMER_env: frame
@@ -693,8 +683,13 @@ $\Rightarrow |T^*[S, \vec{v}]| - |S|\geq 2n_1-n_2.$
     \begin{equation*}
     |S_A|+|S_B|+ \min \{2n^A_i-n^A_{i+1}, 2n^B_j-n^B_{j+1}\}.
     \end{equation*}
-    (done.)
     #+end_export
+
+*** ... but there are other approaches to LB.                       :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+    #+LATEX: \includegraphics[width=\textwidth]{./img/LB.eps}
 ** Numerical experiments
 *** Numerical experiments: strategy
     - First: consider the simplified problem in detail.
@@ -894,6 +889,16 @@ $\Rightarrow |T^*[S, \vec{v}]| - |S|\geq 2n_1-n_2.$
     - Simple MIP (with $x_i\in\{0,1\}$ as decision variables),
     - CPP + MIP (with continuous BDD flows + $x_i$ as variables),
     - CPP $\rightarrow$ Align-BDD $\rightarrow$ shortest-path (no binary variables!)
+*** How to merge two diagrams?                                      :B_frame:
+    :PROPERTIES:
+    :BEAMER_env: frame
+    :END:
+    #+begin_export latex
+    \centering
+    \includegraphics[width=\textwidth]{./img/merging.png}
+    #+end_export
+
+    #+LATEX: {\footnotesize\vspace{2ex}\textbf{Source:} Lozano et al. 2020}
 ** Numerical experiments
 *** Comparing runtimes (random instances)
 #+LATEX:    \includegraphics[width=\textwidth]{./img/tUFLP_runtimes_overview.eps}
@@ -1323,8 +1328,8 @@ steps:\vspace{2ex}
  #+end_export
 *** SI-4. Bounds
     Are inspired by Sefair & Smith 2016:
-    - \textbf{Lower bound:} restrict the *Attacker*. Make attacks ``expire'' after a single turn).
-    - \textbf{Upper bound:} restrict the *Interdictor*. Remove some arcs so that $G$ is a DAG ($\Rightarrow$ DSPI is simple to solve.) Repeat multiple times and choose the best bound.
+    - \textbf{Lower bound:} restrict the *Interdictor*. Make attacks ``expire'' after a single turn).
+    - \textbf{Upper bound:} restrict the *Evader*. Remove some arcs so that $G$ is a DAG ($\Rightarrow$ DSPI is simple to solve.) Repeat multiple times and choose the best bound.
 ** Numerical experiments
 *** Numerical experiments: strategy
    - How does it perform on pre-defined instances? (relative to the known optimum, and to the bounds)
@@ -1338,7 +1343,7 @@ steps:\vspace{2ex}
     \includegraphics[width=\textwidth]{img/fig_known.png}
     \end{figure}
     #+end_export
-*** Random instances (snapshot)
+*** Random instances
     #+begin_export latex
  \begin{figure}
  \includegraphics[width=\textwidth]{img/fig_bounds.png}\vspace{0.5ex}
@@ -1384,9 +1389,9 @@ steps:\vspace{2ex}
     #+end_export
 ** On correctness
 *** Why does it work? (A sketch on ``correctness'')
-**** Proposition                                                  :B_theorem:
+**** Proposition                                                    :B_block:
      :PROPERTIES:
-     :BEAMER_env: theorem
+     :BEAMER_env: block
      :END:
   $$\lim_{k\rightarrow \infty} \mathbb{P}\{Q^k_{\rnode{}} = \textrm{true optimum}\}=1$$
 **** Proof sketch                                           :B_ignoreheading:
